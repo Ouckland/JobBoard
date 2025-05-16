@@ -1,0 +1,21 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% comment %} {% block title %}
+    Jobsphere/login/
+{% endblock title %} {% endcomment %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock head %}
+{% block content %}
+<div class="container">
+    <h2>Login</h2>
+    
+    <form method="POST" action="{% url 'users:login' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="{% url 'users:email_sign_up' %}">Sign up</a></p>
+    <p>Forgot password? <a href="{% url 'users:forgot_password' %}">Reset password</a></p>
+</div>
+{% endblock content %}

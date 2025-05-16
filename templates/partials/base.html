@@ -1,0 +1,19 @@
+{% load static %}
+{% block title %}
+  Jobsphere
+{% endblock title %}
+{% block head %}
+  {% comment %} <link rel="stylesheet" href="{% static ''css/base.css %}"> {% endcomment %}
+{% endblock head %}
+    {% if messages %}
+      <div>
+        {% for message in messages %}
+          <span>
+
+            {{ message }}
+          </span>
+        {% endfor %}
+      </div>
+  {% endif %}
+  
+  {% block content %}{% endblock content %}

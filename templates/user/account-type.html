@@ -1,0 +1,17 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}
+    jobsphere/account-type/
+{% endblock title %}
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/account-type.css'  %}">
+{% endblock head %}
+
+{% block content %}
+  <h2>Choose Account Type</h2>
+  <form method="POST" action="{% url 'users:choose_account_type' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Continue</button>
+  </form>
+{% endblock content%}

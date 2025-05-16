@@ -1,0 +1,22 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}
+  <title>Jobsphere/sign-up/</title>
+{% endblock title %}
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock head %}
+
+
+    {% block content %}
+      <div class="container">
+        <h2>Sign Up</h2>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+
+          <button type="submit">Send OTP</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'users:login' %}">Log in</a></p>
+      </div>
+    {% endblock content%}

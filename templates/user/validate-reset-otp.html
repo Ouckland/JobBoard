@@ -1,0 +1,23 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block title %}
+    jobsphere/validate-reset-otp/
+{% endblock title %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/validate-otp.css' %}">
+{% endblock head %}
+{% block content %}
+  <div class="container">
+    <h2>Verify OTP</h2>
+    <p>An OTP was sent to <strong>{{ user_email }}</strong>. Please enter it below:</p>
+    
+    <form method="POST" action="{% url 'users:validate_reset_otp' user_email=user_email %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <button type="submit">Verify</button>
+    </form>
+    <a href="{% url 'users:resend_reset_otp' user_email=user_email %}">Resend otp</a>
+  </div>
+{% endblock content %}

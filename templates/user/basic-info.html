@@ -1,0 +1,26 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}
+  jobsphere/basic-info/
+{% endblock title %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/basic-info.css' %}">
+{% endblock head %}
+
+{% block content %}
+  {% if account_type == 'employer' %}
+    <h2>Employer Basic Information</h2>
+    <p>Tell us about your company to get started.</p>    
+  {% elif account_type == 'seeker' %}
+    <h2>Job Seeker Basic Information</h2>
+    <p>Provide your personal details to build your profile.</p>
+  {% else %}
+    <h2>Basic Information</h2>
+  {% endif %}
+
+  <form method="POST" action="{% url 'users:basic_info'%}" enctype='multipart/form-data'>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Continue</button>
+  </form>
+{% endblock content%}
