@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import JobApplication, JobPosting, Notification
+from .models import JobApplication, JobPosting, Notification, SavedJob
 
 
 class JobPostingAdmin(admin.ModelAdmin):
@@ -15,6 +15,7 @@ class JobPostingAdmin(admin.ModelAdmin):
 # Register your models here.
 
 admin.site.register(JobApplication)
+admin.site.register(SavedJob)
 admin.site.register(Notification)
 admin.site.register(JobPosting, JobPostingAdmin)
 

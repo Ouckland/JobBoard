@@ -10,8 +10,7 @@ def get_user_profile(user):
         except EmployerProfile.DoesNotExist:
             return None, None
 
-
-
+# 
 def create_notification(recipient, message, url=None):
     Notification.objects.create(
         recipient=recipient,

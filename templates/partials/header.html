@@ -17,7 +17,6 @@
       {% if request.user.is_authenticated %}
         <a href="{% url 'jobs:dashboard' %}">Dashboard</a>
         <a href="{% url 'users:view_profile' %}">Profile</a>
-        <a href="{% url 'messaging:all_chats' %}">Inbox</a>
         {% if notifications %}
           <a href="{% url 'jobs:notifications' %}">
             Notifications <span class="notif-badge">{{ unread_count }}</span>

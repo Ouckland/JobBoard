@@ -33,6 +33,13 @@ class EmailSignupForm(forms.Form):
 class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
 
+
+class ResetPasswordForm(forms.Form):
+    current_password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Enter your current password'}))
+    new_password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Enter your new password'}))
+    confirm_new_password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm your new password'}))
+
+
 class PasswordResetForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
@@ -227,3 +234,43 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
 
 
+
+from django import forms
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
+class UpdateEmailForm(forms.Form):
+    new_email = forms.EmailField(
+        label="New Email Address",
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'new@example.com',
+            'autocomplete': 'email',
+            'class': 'form-input'
+        })
+    )
+    
+    password = forms.CharField(
+        label="Current Password",
+        widget=forms.PasswordInput(attrs={
+            'placeholder': '••••••••',
+            'autocomplete': 'current-password',
+            'class': 'form-input'
+        }),
+        strip=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+    def clean_new_email(self):
+        new_email = self.cleaned_data.get('new_email')
+        if new_email.lower() == self.user.email.lower():
+            raise ValidationError("New email cannot be the same as current email")
+        return new_email
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if not self.user.check_password(password):
+            raise ValidationError("Incorrect password")
+        return password

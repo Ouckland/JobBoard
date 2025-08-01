@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     # Local
     'jobs',
     'users',
-    'messaging',
 ]
 
 MIDDLEWARE = [
@@ -123,6 +122,13 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+SECURITY_EMAIL_CHANGE_LIMIT = "2/m"  # 2 attempts per minute
+
+SITE_URL = "http://localhost:8000"  # Default for development
+
+# SITE_URL = request.build_absolute_uri('/')[:-1]  # In views where request is available
 
 
 # Static files (CSS, JavaScript, Images)

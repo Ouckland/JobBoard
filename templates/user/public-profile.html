@@ -1,44 +1,481 @@
 {% extends "partials/base.html" %}
+{% load custom_filters %}
 {% block content %}
-<section style="padding: 2rem; max-width: 900px; margin: auto;">
 
+<style>
+  :root {
+    --space-primary: #0a0a12;
+    --space-secondary: #121225;
+    --space-accent: #1a3a8f;
+    --space-neon: #4cc9f0;
+    --space-text: #e2e2e2;
+    --space-text-secondary: #b8b8b8;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(26, 58, 143, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(26, 58, 143, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(26, 58, 143, 0); }
+  }
+
+  body {
+    background: radial-gradient(ellipse at bottom, #0d1117 0%, #020204 100%);
+    color: var(--space-text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+  }
+
+  .space-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .space-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(76, 201, 240, 0.08) 0%, transparent 70%);
+    animation: float 15s infinite ease-in-out;
+    z-index: -1;
+  }
+
+  .space-card {
+    background: rgba(10, 10, 18, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(26, 58, 143, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(13, 17, 23, 0.25);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .space-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(26, 58, 143, 0.25);
+  }
+
+  .space-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--space-accent), var(--space-neon));
+  }
+
+  /* Profile Header */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--space-accent);
+    box-shadow: 0 0 20px rgba(26, 58, 143, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 4s infinite;
+  }
+
+  .profile-picture:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(26, 58, 143, 0.6);
+  }
+
+  .profile-title {
+    font-size: 2.5rem;
+    margin: 0;
+    background: linear-gradient(90deg, var(--space-text), var(--space-neon));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(76, 201, 240, 0.2);
+  }
+
+  /* Content Sections */
+  .content-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .section-title {
+    color: var(--space-neon);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(76, 201, 240, 0.3);
+  }
+
+  /* Text Content */
+  .text-content {
+    background: rgba(26, 58, 143, 0.1);
+    border-left: 3px solid var(--space-neon);
+    padding: 1rem;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  /* Skills Tags */
+  .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .skill-tag {
+    background: rgba(76, 201, 240, 0.15);
+    color: var(--space-neon);
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(76, 201, 240, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .skill-tag:hover {
+    background: rgba(76, 201, 240, 0.3);
+    transform: translateY(-2px);
+  }
+
+  /* URL Links with Copy */
+  .links-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .link-label {
+    min-width: 100px;
+    color: var(--space-neon);
+    font-weight: bold;
+  }
+
+  .url-display {
+    flex-grow: 1;
+    background: rgba(26, 58, 143, 0.1);
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-family: monospace;
+    color: var(--space-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .copy-btn {
+    background: rgba(76, 201, 240, 0.2);
+    color: var(--space-neon);
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .copy-btn:hover {
+    background: rgba(76, 201, 240, 0.3);
+  }
+
+  .copy-btn.copied {
+    background: rgba(106, 168, 79, 0.3);
+    color: #6aa84f;
+  }
+
+  /* Contact Button */
+  .contact-btn {
+    display: inline-block;
+    padding: 0.8rem 1.8rem;
+    background: linear-gradient(135deg, var(--space-accent), var(--space-neon));
+    color: var(--space-primary);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    margin-top: 1.5rem;
+  }
+
+  .contact-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(26, 58, 143, 0.3);
+  }
+
+  /* Stars Background */
+  .stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--duration) infinite ease-in-out;
+    opacity: 0;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--opacity); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+    
+    .profile-title {
+      font-size: 2rem;
+    }
+    
+    .link-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<div class="stars" id="stars"></div>
+
+<div class="space-container">
+  <div class="space-card">
     {% if profile_type == 'seeker' %}
-        <h2 style="margin-bottom: 1rem;">{{ profile.full_name }}</h2>
+      <!-- Seeker Profile Header -->
+      <div class="profile-header">
         {% if profile.profile_picture %}
-            <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" width="150" style="border-radius: 50%; margin-bottom: 1rem;">
+          <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
         {% endif %}
-        <p><strong>Job Type Preference:</strong> {{ profile.get_job_type_display }}</p>
-        <p><strong>Bio:</strong> {{ profile.bio }}</p>
-        <p><strong>Skills:</strong> {{ profile.skills }}</p>
-        <p><strong>Experience:</strong> {{ profile.experience }}</p>
-        <p><strong>Education:</strong> {{ profile.education }}</p>
-        {% if profile.portfolio %}
-            <p><strong>Portfolio:</strong> <a href="{{ profile.portfolio }}" target="_blank">{{ profile.portfolio }}</a></p>
-        {% endif %}
-        {% if profile.linkedin %}
-            <p><strong>LinkedIn:</strong> <a href="{{ profile.linkedin }}" target="_blank">{{ profile.linkedin }}</a></p>
-        {% endif %}
+        <div>
+          <h1 class="profile-title">{{ profile.full_name }}</h1>
+          <p style="color: var(--space-neon); margin-top: 0.5rem; font-size: 1.1rem;">
+            {{ profile.get_job_type_display }}
+          </p>
+        </div>
+      </div>
+
+      <!-- About Section -->
+      <div class="content-section">
+        <h3 class="section-title">About</h3>
+        <div class="text-content">
+          {{ profile.bio }}
+        </div>
+      </div>
+
+      <!-- Skills Section -->
+      <div class="content-section">
+        <h3 class="section-title">Skills</h3>
+        <div class="skills-container">
+          {% for skill in profile.skills|display_skills %}
+            <span class="skill-tag">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Experience & Education -->
+      <div class="content-section">
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 250px;">
+            <h3 class="section-title">Experience</h3>
+            <div class="text-content">
+              {{ profile.experience }}
+            </div>
+          </div>
+          <div style="flex: 1; min-width: 250px;">
+            <h3 class="section-title">Education</h3>
+            <div class="text-content">
+              {{ profile.education }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Links Section -->
+      <div class="content-section">
+        <h3 class="section-title">Links</h3>
+        <div class="links-container">
+          {% if profile.portfolio %}
+          <div class="link-item">
+            <span class="link-label">Portfolio</span>
+            <div class="url-display" id="portfolio-url">{{ profile.portfolio }}</div>
+            <button class="copy-btn" onclick="copyToClipboard('portfolio-url', this)">
+              <i class="far fa-copy"></i> Copy
+            </button>
+          </div>
+          {% endif %}
+
+          {% if profile.linkedin %}
+          <div class="link-item">
+            <span class="link-label">LinkedIn</span>
+            <div class="url-display" id="linkedin-url">{{ profile.linkedin }}</div>
+            <button class="copy-btn" onclick="copyToClipboard('linkedin-url', this)">
+              <i class="far fa-copy"></i> Copy
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
 
     {% elif profile_type == 'employer' %}
-        <h2 style="margin-bottom: 1rem;">{{ profile.company_name }}</h2>
+      <!-- Employer Profile Header -->
+      <div class="profile-header">
         {% if profile.company_logo %}
-            <img src="{{ profile.company_logo.url }}" alt="Company Logo" width="150" style="margin-bottom: 1rem;">
+          <img src="{{ profile.company_logo.url }}" alt="Company Logo" class="profile-picture">
         {% endif %}
-        <p><strong>Industry:</strong> {{ profile.industry }}</p>
-        <p><strong>Company Size:</strong> {{ profile.company_size }}</p>
-        <p><strong>About:</strong> {{ profile.about_company }}</p>
-        <p><strong>Job Posting Preference:</strong> {{ profile.get_job_posting_preference_display }}</p>
-        {% if profile.company_website %}
-            <p><strong>Website:</strong> <a href="{{ profile.company_website }}" target="_blank">{{ profile.company_website }}</a></p>
-        {% endif %}
+        <div>
+          <h1 class="profile-title">{{ profile.company_name }}</h1>
+          <p style="color: var(--space-neon); margin-top: 0.5rem; font-size: 1.1rem;">
+            {{ profile.industry }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Company Info -->
+      <div class="content-section">
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 250px;">
+            <h3 class="section-title">Company Details</h3>
+            <div class="text-content">
+              <p><strong>Size:</strong> {{ profile.company_size }}</p>
+              <p><strong>Location:</strong> {{ profile.state }}</p>
+              <p><strong>Job Preference:</strong> {{ profile.get_job_posting_preference_display }}</p>
+            </div>
+          </div>
+          <div style="flex: 1; min-width: 250px;">
+            <h3 class="section-title">About</h3>
+            <div class="text-content">
+              {{ profile.about_company }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Company Links -->
+      {% if profile.company_website %}
+      <div class="content-section">
+        <h3 class="section-title">Website</h3>
+        <div class="links-container">
+          <div class="link-item">
+            <span class="link-label">URL</span>
+            <div class="url-display" id="company-url">{{ profile.company_website }}</div>
+            <button class="copy-btn" onclick="copyToClipboard('company-url', this)">
+              <i class="far fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     {% endif %}
 
-    <!-- Contact Section -->
-    <div style="margin-top: 2rem;">
-        <a href="mailto:{{ profile.user.email }}?subject=Hello from Jobsphere" style="padding: 0.6rem 1.2rem; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-            Contact {% if profile_type == 'seeker' %}Candidate{% else %}Employer{% endif %}
-        </a>
+    <!-- Contact Button -->
+    <div style="text-align: center;">
+      <a href="mailto:{{ profile.user.email }}?subject=Hello from Jobsphere" class="contact-btn">
+        Contact {% if profile_type == 'seeker' %}Candidate{% else %}Employer{% endif %}
+      </a>
     </div>
+  </div>
+</div>
 
-</section>
+<script>
+  // Create twinkling stars
+  document.addEventListener('DOMContentLoaded', function() {
+    const starsContainer = document.getElementById('stars');
+    const starCount = 150;
+    
+    for (let i = 0; i < starCount; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      
+      // Random properties
+      const size = Math.random() * 2.5;
+      const posX = Math.random() * 100;
+      const posY = Math.random() * 100;
+      const opacity = 0.2 + Math.random() * 0.8;
+      const duration = 3 + Math.random() * 7;
+      const delay = Math.random() * 5;
+      
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${posX}%`;
+      star.style.top = `${posY}%`;
+      star.style.setProperty('--opacity', opacity);
+      star.style.setProperty('--duration', `${duration}s`);
+      star.style.animationDelay = `${delay}s`;
+      
+      starsContainer.appendChild(star);
+    }
+
+    // Add Font Awesome if not already loaded
+    if (!document.querySelector('link[href*="font-awesome"]')) {
+      const faLink = document.createElement('link');
+      faLink.rel = 'stylesheet';
+      faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+      document.head.appendChild(faLink);
+    }
+  });
+
+  // Copy URL function
+  function copyToClipboard(elementId, button) {
+    const element = document.getElementById(elementId);
+    const text = element.innerText;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      button.classList.add('copied');
+      
+      setTimeout(() => {
+        button.innerHTML = '<i class="far fa-copy"></i> Copy';
+        button.classList.remove('copied');
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  }
+</script>
+
 {% endblock %}

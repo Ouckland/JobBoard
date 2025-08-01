@@ -10,16 +10,15 @@
 <div class="dashboard-layout">
   <!-- Sidebar -->
   <aside class="sidebar">
-    <h3><i class="dashboard-icon">📊</i> Dashboard</h3>
+    <h3><i class="dashboard-icon"></i> Dashboard</h3>
     {% if user.employerprofile %}
-      <a href="{% url 'jobs:add_job' %}"><i>➕</i> Add Job</a>
-      <a href="#"><i>✏️</i> Edit Jobs</a>
-      <a href="#"><i>🗑️</i> Delete Jobs</a>
-      <a href="#"><i>📝</i> Review Applications</a>
+      <a href="{% url 'jobs:add_job' %}"><i></i> Add Job</a>
+      <a href="{% url 'jobs:all_jobs' %}"><i></i> All Jobs</a>
+      <a href="{% url 'jobs:all_applications' %}"><i></i> All Applications</a>
     {% elif user.seekerprofile %}
-      <a href="#"><i>🔍</i> Find Jobs</a>
-      <a href="#"><i>📨</i> My Applications</a>
-      <a href="#"><i>👤</i> Edit Profile</a>
+      <a href="{% url 'jobs:all_jobs' %}"><i></i> Find Jobs</a>
+      <a href="#"><i></i> My Applications</a>
+      <a href="{% url 'jobs:saved_jobs' %}"><i></i> Saved Jobs</a>
     {% endif %}
   </aside>
 
@@ -44,15 +43,18 @@
     <div class="search-container">
       <form method="get" class="search-form">
         <div class="search-group">
-          <i class="search-icon">🔎</i>
           <input type="text" name="q" placeholder="Search jobs..." value="{{ request.GET.q }}">
         </div>
-        <select name="job_type">
-          <option value="">All Types</option>
-          <option value="remote" {% if request.GET.job_type == 'remote' %}selected{% endif %}>Remote</option>
-          <option value="onsite" {% if request.GET.job_type == 'onsite' %}selected{% endif %}>Onsite</option>
-          <option value="hybrid" {% if request.GET.job_type == 'hybrid' %}selected{% endif %}>Hybrid</option>
-        </select>
+        
+          <select name="job_type">
+            <option value="">All Types</option>
+            {% for value, label in job_types %}
+              <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        
         <input type="text" name="location" placeholder="📍 Location" value="{{ request.GET.location }}">
         <select name="sort">
           <option value="">Sort By</option>
@@ -70,11 +72,12 @@
       <section class="dashboard-card card-glow">
         <div class="card-header">
           <h3><i>💼</i>Your Posted Jobs</h3>
-          <a href="{% url 'jobs:add_job' %}" class="dashboard-btn pulse">➕ Post New Job</a>
+          <a href="{% url 'jobs:add_job' %}" class="dashboard-btn pulse">Post New Job</a>
         </div>
         <ul class="dashboard-list">
           {% for job in active_jobs %}
           <li class="job-item">
+              
             <div><span class="job-title">{{ job.title }}</span></div>
             <div class="job-meta">{{ job.applications.count }} application{{ job.applications.count|pluralize }}</div>
             <div class="job-actions">
@@ -101,6 +104,13 @@
           <ul class="dashboard-list">
             {% for job in latest_jobs %}
             <li class="job-item">
+              {% if job.employer.company_logo %}
+                <a href="{% url 'users:public_profile' job.employer.user.username %}" class="job-employer-image"><img src="{{ job.employer.company_logo.url }}" alt="Employer Image">
+                </a>
+              {% else %}
+              
+              <a href='{% url "users:public_profile" job.employer.user.username %}'  class='job-employer-image'><img src="{% static 'images/default-profile.png' %}" alt="No image found" height="50" style='border-radius: 50px%;'></a>
+              {% endif %}
               <span class="job-title">{{ job.title }}</span>
               <span class="company">{{ job.employer.company_name }}</span>
               <div class="job-actions">
@@ -136,17 +146,52 @@
           <h3><i>⭐</i>Recommended for You</h3>
           <span class="badge">{{ recommended_jobs.count }} Matches</span>
         </div>
+        
         <ul class="dashboard-list">
           {% for job in recommended_jobs %}
           <li class="job-item">
-            <span class="job-title">{{ job.title }}</span>
-            <span class="company">{{ job.employer.company_name }}</span>
-            <div class="job-actions"><a href="{% url 'jobs:view_job_detail' job.id %}" class="action-btn">View</a></div>
+            {% if job.employer.company_logo %}
+              <a href="{% url 'users:public_profile' job.employer.user.username %}" class="job-employer-image">
+                <img src="{{ job.employer.company_logo.url }}" alt="Employer Image">
+              </a>
+            {% else %}
+              <a href='{% url "users:public_profile" job.employer.user.username %}' class='job-employer-image'>
+                <img src="{% static 'images/default-profile.png' %}" alt="No logo">
+              </a>
+            {% endif %}
+            
+            <div class="job-details">
+              <span class="job-title">{{ job.title }}</span>
+              <span class="company">{{ job.employer.company_name }}</span>
+              
+              {% if job.match_score %}
+              <div class="match-score">
+                <div class="score-bar" style="width: {{ job.match_score }}%"></div>
+                <span>{{ job.match_score }}% Match</span>
+              </div>
+              {% endif %}
+            </div>
+            
+            <div class="job-actions">
+              <a href="{% url 'jobs:view_job_detail' job.id %}" class="action-btn">View</a>
+              {% if job.id in saved_job_ids %}
+              {% include "partials/unsave-job.html" %}
+              {% else %}
+              {% include "partials/save-job.html" %}
+              {% endif %}
+            </div>
+
           </li>
+          
           {% empty %}
           <li class="empty-state">
             <img src="{% static 'images/empty-recommendations.svg' %}" class="empty-img" alt="No matches">
-            <p>Complete your profile for better matches</p>
+            {% if not profile.skills %}
+              <p>Add skills to your profile for recommendations</p>
+              <a href="{% url 'users:view_profile' %}" class="dashboard-btn">Update Profile</a>
+            {% else %}
+              <p>No matches found. Try broadening your search.</p>
+            {% endif %}
           </li>
           {% endfor %}
         </ul>
@@ -182,3 +227,5 @@
   </main>
 </div>
 {% endblock content %}
+
+

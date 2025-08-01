@@ -1,20 +1,44 @@
 {% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/view-applications.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock head %}
 {% block content %}
-    {% include "partials/header.html" %}
+{% include "partials/header.html" %}
 
-    <h2>Applications for {{ job.title }}</h2>
+<section class="applications-section">
+    <h2 class="applications-heading">Applications for {{ job.title }}</h2>
 
     {% if applications %}
-    <ul>
         {% for app in applications %}
-        <li>
-            <strong>{{ app.applicant.user.get_full_name }}</strong><br>
-            Applied on: {{ app.application_date|date:"F j, Y" }}<br>
-            <a href="{% url 'jobs:view_application_detail' app.id %}">View Details</a>
-        </li>
+        <div class="application-card">
+            <div class="profile-image-container">
+                {% if app.applicant.profile_picture %}
+                    <a href="{% url 'users:public_profile' job.employer.user.username %}" class="job-employer-image">
+                        <img src="{{ app.applicant.profile_picture.url }}" alt="Applicant Image">
+                        <div class="circle-effect"></div>
+                    </a>
+                {% else %}
+                <a href='{% url "users:public_profile" job.employer.user.username %}' class='job-employer-image'>
+                    <img src="{% static 'images/default-profile.png' %}" alt="No image found">
+                    <div class="circle-effect"></div>
+                </a>
+                {% endif %}
+            </div>
+            <div class="application-details">
+                <div class="applicant-name">{{ app.applicant.full_name }}</div>
+                <div class="application-date">Applied on: {{ app.application_date|date:"F j, Y" }}</div>
+                <a href="{% url 'jobs:view_application_detail' app.id %}" class="view-details-btn">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
     {% else %}
-    <p>No applications yet.</p>
+        <div class="no-applications">
+            <i class="far fa-folder-open"></i> No applications yet.
+        </div>
     {% endif %}
+</section>
 {% endblock content %}

@@ -24,7 +24,6 @@ class Status(models.TextChoices):
 
 
 
-
 class JobPosting(models.Model):
     employer = models.ForeignKey(EmployerProfile, on_delete=models.CASCADE, related_name='posted_jobs')
     title = models.CharField(max_length=255, validators=[MinLengthValidator(3)])
@@ -76,7 +75,22 @@ class JobApplication(models.Model):
     def __str__(self):
         return f'{self.applicant.full_name} applied for {self.job.title}'
 
-    
+def get_default_user():
+    return User.objects.first() if User.objects.exists() else None
+
+class SavedJob(models.Model):
+    job = models.ForeignKey(JobPosting, on_delete=models.CASCADE)
+    job_saver = models.ForeignKey(SeekerProfile, on_delete=models.CASCADE, default=get_default_user)
+    is_saved = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['job', 'job_saver']  # Prevents duplicates
+
+        
+    def __str__(self):
+        return f'{self.job.title} --- {self.job_saver.full_name}'
+
 
 class Notification(models.Model):
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')

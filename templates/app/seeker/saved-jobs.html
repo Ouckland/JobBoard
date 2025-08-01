@@ -1,0 +1,196 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/saved-jobs.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<main class="saved-jobs-container">
+    <!-- Glassmorphic Filter Card -->
+    <div class="glass-card filter-section">
+        <h2 class="section-title"><i class="fas fa-filter"></i> Filter Saved Jobs</h2>
+        <form method="get" class="filter-form">
+            <div class="form-group">
+                <div class="search-group">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="search" placeholder="Job title, company or skills..." 
+                           value="{{ search_query }}" class="glass-input">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <select name="status" class="glass-select">
+                        <option value="">All Statuses</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <input type="date" name="date_from" value="{{ date_from }}" 
+                           class="glass-input" placeholder="From date">
+                </div>
+
+                <div class="form-group">
+                    <input type="date" name="date_to" value="{{ date_to }}" 
+                           class="glass-input" placeholder="To date">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="glass-btn primary">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <a href="{% url 'jobs:saved_jobs' %}" class="glass-btn secondary">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section">
+        <div class="results-header">
+            <h2 class="section-title">
+                <i class="far fa-bookmark"></i> Saved Jobs 
+                <span class="badge">{{ saved_jobs.paginator.count }}</span>
+            </h2>
+            
+            <div class="sort-options">
+                <span>Sort by:</span>
+                <a href="?sort=-timestamp{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   class="sort-btn {% if not request.GET.sort or request.GET.sort == '-timestamp' %}active{% endif %}">
+                    Newest First
+                </a>
+                <a href="?sort=timestamp{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   class="sort-btn {% if request.GET.sort == 'timestamp' %}active{% endif %}">
+                    Oldest First
+                </a>
+            </div>
+        </div>
+
+        {% if saved_jobs %}
+        <div class="job-list">
+            {% for saved_job in saved_jobs %}
+            <div class="glass-card job-item">
+                <div class="job-employer-image">
+                    {% if saved_job.job.employer.company_logo %}
+                    <a href="{% url 'users:public_profile' saved_job.job.employer.user.username %}">
+                        <img src="{{ saved_job.job.employer.company_logo.url }}" alt="{{ saved_job.job.employer.company_name }}">
+                    </a>
+                    {% else %}
+                    <i class="fas fa-building"></i>
+                    {% endif %}
+                </div>
+                
+                <div class="job-info">
+                    <div class="job-header">
+                        <h3 class="job-title">
+                            <a href="{% url 'jobs:view_job_detail' saved_job.job.id %}">{{ saved_job.job.title }}</a>
+                        </h3>
+                        <span class="job-status {{ saved_job.job.job_status }}">
+                            {{ saved_job.job.get_job_status_display }}
+                        </span>
+                    </div>
+                    
+                    <p class="company-name">{{ saved_job.job.employer.company_name }}</p>
+                    
+                    <div class="job-meta">
+                        <span class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i> {{ saved_job.job.location|default:"Remote" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="far fa-calendar-alt"></i> Saved {{ saved_job.timestamp|date:"M d, Y" }}
+                        </span>
+                        {% if saved_job.job.salary %}
+                        <span class="meta-item">
+                            <i class="fas fa-money-bill-wave"></i> {{ saved_job.job.salary }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if saved_job.job.skills_required.all %}
+                    <div class="job-skills">
+                        {% for skill in saved_job.job.skills_required.all|slice:":5" %}
+                        <span class="skill-tag">{{ skill.name }}</span>
+                        {% endfor %}
+                        {% if saved_job.job.skills_required.all|length > 5 %}
+                        <span class="skill-tag">+{{ saved_job.job.skills_required.all|length|add:"-5" }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="job-actions">
+                    <a href="{% url 'jobs:view_job_detail' saved_job.job.id %}" class="glass-btn primary">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                     <form action="{% url 'jobs:unsave_job' saved_job.job.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="glass-btn danger">
+                            <i class="far fa-trash-alt"></i> Remove
+                        </button>
+                    </form> 
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-card empty-state">
+            <div class="empty-icon">
+                <i class="far fa-folder-open"></i>
+            </div>
+            <h3>No saved jobs found</h3>
+            <p>Try adjusting your search filters or save some jobs to view them here.</p>
+            <a href="{% url 'jobs:saved_jobs' %}" class="glass-btn primary">
+                <i class="fas fa-briefcase"></i> Browse Jobs
+            </a>
+        </div>
+        {% endif %}
+
+        {% if saved_jobs.paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            <div class="pagination">
+                {% if saved_jobs.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                   class="glass-btn pagination-btn">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ saved_jobs.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                   class="glass-btn pagination-btn">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                {% endif %}
+
+                {% for num in saved_jobs.paginator.page_range %}
+                    {% if saved_jobs.number == num %}
+                    <span class="glass-btn pagination-btn active">{{ num }}</span>
+                    {% elif num > saved_jobs.number|add:'-3' and num < saved_jobs.number|add:'3' %}
+                    <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                       class="glass-btn pagination-btn">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if saved_jobs.has_next %}
+                <a href="?page={{ saved_jobs.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                   class="glass-btn pagination-btn">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ saved_jobs.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                   class="glass-btn pagination-btn">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock content %}

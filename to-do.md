@@ -114,7 +114,8 @@ views.py
 styled and refactored
 authentication
 
-- add-job *
+- add-job 
+update-job
 view-job-detail
 delete-job
 
@@ -130,6 +131,6 @@ delete-application-details
 
 entire profile except profile setup
 
-To-Do
 
-Integrate phone code into the profile model for both seeker and employer
+
+  # Work on the Sorting of the deadline and newest tomorrow

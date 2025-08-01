@@ -2,7 +2,6 @@ from django.core.files.images import get_image_dimensions
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
@@ -37,6 +36,7 @@ class OTP(models.Model):
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=1)
 
+    
 
 class Profile(models.Model):
     ACCOUNT_CHOICES = [
@@ -44,10 +44,11 @@ class Profile(models.Model):
         ('seeker', 'Job Seeker'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    account_type = models.CharField(max_length=10, choices=ACCOUNT_CHOICES, default=ACCOUNT_CHOICES[0][0])
+    account_type = models.CharField(max_length=10, choices=ACCOUNT_CHOICES)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE, null=True)
     
+
     def save(self, *args, **kwargs):
         if not self.country:
             first_country = Country.objects.first()

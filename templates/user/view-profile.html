@@ -15,13 +15,11 @@
     <h3>My Account</h3>
     <ul>
       <li><a href="{% url 'users:view_profile' %}">Profile Overview</a></li>
-      <li><a href="#">Change Password</a></li>
+      <li><a href="{% url 'users:account_settings' %}">Account Settings</a></li>
       {% if profile_type == 'seeker' %}
-        <li><a href="#">My Applications</a></li>
-        <li><a href="#">Saved Jobs</a></li>
+        <li><a href="{% url 'jobs:saved_jobs' %}">Saved Jobs</a></li>
       {% elif profile_type == 'employer' %}
         <li><a href="#">Posted Jobs</a></li>
-        <li><a href="#">Add Job</a></li>
       {% endif %}
     </ul>
   </aside>
@@ -192,7 +190,7 @@
           
 
     {% elif profile_type == 'employer' %}
-      <form action="{% url 'jobs:update_profile_picture' %}" method="POST" enctype="multipart/form-data">
+      <form action="{% url 'users:update_profile_picture' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="profile-pic-wrapper">
           {% if profile.company_logo %}

@@ -1,5 +1,4 @@
 import random
-from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse
@@ -14,10 +13,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from .models import State, Country
 
-
-
 from .forms import EmailSignupForm, User, OTPform, ChooseAccountTypeForm, EmployerBasicInfoForm, SeekerBasicInfoForm
-from .forms import EmployerAccountForm, SeekerAccountForm, LoginForm , PasswordResetRequestForm, PasswordResetForm
+from .forms import EmployerAccountForm, SeekerAccountForm, LoginForm , PasswordResetRequestForm, PasswordResetForm, ResetPasswordForm
 
 User = get_user_model()
 
@@ -675,6 +672,7 @@ def public_profile(request, username):
     })
 
 
+@login_required
 def profile_setup(request):
     user = request.user
     if not user:
@@ -687,6 +685,7 @@ def profile_setup(request):
         
     return render(request, 'user/profile-setup.html') 
 
+@login_required
 def account_settings(request):
     user = request.user
     if not user or not user.is_active:
@@ -698,3 +697,61 @@ def account_settings(request):
         'profile_type': profile_type,
     }
     return render(request, 'user/view-account-settings.html', context)
+
+
+@login_required
+def change_password(request):
+    user = request.user
+    if not user or not user.is_active:
+        messages.error(request, "Session expired. Please log in again")
+        return redirect('users:login')
+    
+    form = ResetPasswordForm(
+    )
+
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_new_password = request.POST.get('confirm_new_password')
+
+            if not user.check_password(current_password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect('users:change_password')
+
+            if new_password != confirm_new_password:
+                messages.error(request, 'New passwords do not match.')
+                return redirect('users:change_password')
+
+            user.set_password(new_password)
+            user.save()
+            link = reverse('jobs:dashboard')
+            create_notification(
+                recipient=user,
+                message='You have changed your password succesfully.',
+                url=link
+            )
+            # send_mail()
+            messages.success(request, 'Password changed successfully.')
+            return redirect('users:login')
+        
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'user/change-password.html', context)
+
+
+
+def delete_account(request):
+    user = request.user
+    if not user or not user.is_active:
+        messages.error(request, "Session expired. Please log in again")
+        return redirect('users:login')
+    if request.method == 'POST':
+        user.delete()
+        logout(request)
+        return redirect('jobs:home')
+    return render(request, 'user/delete-account.html')
+

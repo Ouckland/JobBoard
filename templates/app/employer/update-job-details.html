@@ -1,70 +1,52 @@
 {% extends "partials/base.html" %}
 {% load static %}
 {% block head %}
-    <link rel="stylesheet" href="{% static 'css/add-job.css' %}">
+<link rel="stylesheet" href="{% static 'css/add-job.css' %}">
 {% endblock head %}
+
 {% block content %}
-    {% include "partials/header.html" %}
-    
-    <section>
-        <h2>Update Job Details</h2>
 
-        <form action="{% url 'jobs:update_job_details' job.id %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
+<section class="account-info-container">
+    <div class="form-box">
+        <h2 class="form-heading">Update Job Details</h2>
+        {% comment %} <form action="{% url 'jobs:update_job_details' job.id %}" method="POST" enctype="multipart/form-data"> {% endcomment %}
+            {% comment %} {% csrf_token %} {% endcomment %}
+            {% if job_form.errors %}
+        <div class="form-error">
+            <ul>
+                {% for field in job_form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in job_form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 
-            <div>
-                <label for="id_title">Job Title:</label>
-                <input type="text" name="title" id="id_title" value="{{ form.title.value|default_if_none:'' }}" required>
+    <form class="account-info-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% for field in job_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <div class="form-help">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                    <div class="form-error">{{ field.errors }}</div>
+                {% endif %}
             </div>
+        {% endfor %}
 
-            <div>
-                <label for="id_job_type">Job Type:</label>
-                {{ form.job_type }}
-            </div>
-
-            <div>
-                <label for="id_location">Location:</label>
-                <input type="text" name="location" id="id_location" value="{{ form.location.value|default_if_none:'' }}" required>
-            </div>
-
-            <div>
-                <label for="id_salary">Salary (₦):</label>
-                <input type="number" name="salary" id="id_salary" value="{{ form.salary.value|default_if_none:'' }}" required>
-            </div>
-
-            <div>
-                <label for="id_experience_required">Experience Required:</label>
-                <textarea name="experience_required" id="id_experience_required">{{ form.experience_required.value }}</textarea>
-            </div>
-
-            <div>
-                <label for="id_qualifications">Qualifications:</label>
-                <textarea name="qualifications" id="id_qualifications">{{ form.qualifications.value }}</textarea>
-            </div>
-
-            <div>
-                <label for="id_deadline">Application Deadline:</label>
-                <input type="date" name="deadline" id="id_deadline" value="{{ form.deadline.value|date:'Y-m-d' }}">
-            </div>
-
-            <div>
-                <label for="id_job_category">Job Category:</label>
-                {{ form.job_category }}
-            </div>
-
-            <div>
-                <label for="id_job_status">Job Status:</label>
-                {{ form.job_status }}
-            </div>
-
-            <div>
-                <label for="id_skills_required">Skills Required:</label>
-                <textarea name="skills_required" id="id_skills_required">{{ form.skills_required.value }}</textarea>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <button type="submit">Update Job</button>
-            </div>
-        </form>
-    </section>
+        <button type="submit" class="submit-btn">Submit Job</button>
+        <div class="back-link">
+      <a href="{% url 'jobs:view_job_detail' job.id %}">← Back to Job Details</a>
+    </div>
+    </form>
+    </div>
+</section>
 {% endblock content %}

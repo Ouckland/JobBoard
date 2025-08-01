@@ -52,3 +52,8 @@ def display_skills(skill_data):
             return [s.strip() for s in skill_data.split(',') if s.strip()]
     
     return []
+
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

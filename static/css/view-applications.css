@@ -1,0 +1,188 @@
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+  --dark: #0a0a12;
+  --darker: #050509;
+  --light: #1e1e2d;
+  --highlight: #4dabff;
+  --text: #f0f0f0;
+  --subtext: #b3b3b3;
+  --stat-bg: rgba(255,255,255,0.08);
+  --card-bg: rgba(20,20,28,0.8);
+  --success: #4ade80;
+  --error: #f87171;
+}
+
+/* === Global === */
+* { 
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  background: radial-gradient(ellipse at top, var(--dark), var(--darker));
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+    
+    .applications-section {
+        background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+        color: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+    .applications-section {
+        margin-top: 100px; /* ensures space below fixed header */
+        padding: 2rem;
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .applications-heading {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .application-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: transform 0.3s ease, border 0.3s ease;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        display: flex;
+        gap: 20px;
+    }
+
+    .application-card:hover {
+        transform: scale(1.01);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Profile Image Styles */
+.profile-image-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.job-employer-image {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.job-employer-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.circle-effect {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+.job-employer-image:hover {
+    transform: translateY(-5px);
+}
+
+.job-employer-image:hover .circle-effect {
+    border-color: var(--highlight);
+    width: 120%;
+    height: 120%;
+    opacity: 0.7;
+}
+
+.job-employer-image:hover img {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Application Details */
+.application-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.view-details-btn i {
+    margin-right: 8px;
+}
+
+.no-applications i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+
+    .applicant-name {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #fff;
+    }
+
+    .application-date {
+        font-size: 0.95rem;
+        color: #ccc;
+        margin-top: 4px;
+    }
+
+    .view-details-btn {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.5rem 1.2rem;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(6px);
+        transition: all 0.3s ease;
+    }
+
+    .view-details-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+
+    .no-applications {
+        text-align: center;
+        color: #ccc;
+        font-size: 1.1rem;
+        margin-top: 3rem;
+    }
+
+
