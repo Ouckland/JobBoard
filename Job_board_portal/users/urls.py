@@ -28,7 +28,6 @@ urlpatterns = [
     path('profile/account/delete/confirm/', views.delete_account, name='delete_account'),
 
 
-    path('profile/setup/', views.profile_setup, name='profile_setup'),
     path('profile/<str:username>/', views.public_profile, name='public_profile'),
 
     path('ajax/load-states/', views.load_states, name='ajax_load_states'),

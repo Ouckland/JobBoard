@@ -6,45 +6,47 @@
 {% endblock title %}
 
 {% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="{% static 'css/account-type.css' %}">
 {% endblock head %}
 
 {% block content %}
 <div class="account-type-container">
-    <h2>Choose Your Account Type</h2>
-    <form method="POST" action="{% url 'users:choose_account_type' %}" autocomplete="off" class="account-type-form">
-        {% csrf_token %}
+    <div>
+        <h2>Choose Your Account Type</h2>
+        <form method="POST" action="{% url 'users:choose_account_type' %}" autocomplete="off" class="account-type-form">
+            {% csrf_token %}
 
-        <!-- Username Field -->
-        <div class="form-group">
-            <label for="{{ form.username.id_for_label }}"><strong>Username</strong></label>
-            {{ form.username }}
-            {% if form.username.errors %}
-                <div class="form-error">{{ form.username.errors.0 }}</div>
-            {% endif %}
-        </div>
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="form-error">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
 
-        <!-- Account Type Field -->
-        <div class="form-group">
-            <label><strong>Account Type</strong></label>
+            <!-- Account Type Field -->
+            <div class="form-group">
+                <label>Account Type</label>
+                <div class="radio-group">
+                    {% for radio in form.account_type %}
+                        <label class="radio-label">
+                            <span class="custom-radio">
+                                {{ radio.tag }}
+                                <span class="custom-radio-indicator"></span>
+                            </span>
+                            {{ radio.choice_label }}
+                        </label>
+                    {% endfor %}
+                </div>
+                {% if form.account_type.errors %}
+                    <div class="form-error">{{ form.account_type.errors.0 }}</div>
+                {% endif %}
+            </div>
 
-        <div class="radio-group">
-            {% for radio in form.account_type %}
-                <label class="radio-label">
-                    <span class="custom-radio">
-                        {{ radio.tag }}
-                        <span class="custom-radio-indicator"></span>
-                    </span>
-                    {{ radio.choice_label }}
-                </label>
-            {% endfor %}
-        </div>
-          {% if form.account_type.errors %}
-                <div class="form-error">{{ form.account_type.errors.0 }}</div>
-            {% endif %}
-        </div>
-
-        <button type="submit" class="submit-btn">Continue</button>
-    </form>
+            <button type="submit" class="submit-btn">Continue</button>
+        </form>
+    </div>
 </div>
 {% endblock content %}

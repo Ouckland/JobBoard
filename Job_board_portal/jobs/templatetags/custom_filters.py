@@ -57,3 +57,11 @@ def display_skills(skill_data):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+@register.simple_tag
+def param_replace(request, **kwargs):
+    params = request.GET.copy()
+    for key, value in kwargs.items():
+        params[key] = value
+    return params.urlencode()

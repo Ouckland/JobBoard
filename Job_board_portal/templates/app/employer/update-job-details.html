@@ -1,22 +1,23 @@
 {% extends "partials/base.html" %}
 {% load static %}
+
 {% block head %}
+<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/add-job.css' %}">
 {% endblock head %}
 
 {% block content %}
-
+    {% include "partials/header.html" %}
 <section class="account-info-container">
-    <div class="form-box">
-        <h2 class="form-heading">Update Job Details</h2>
-        {% comment %} <form action="{% url 'jobs:update_job_details' job.id %}" method="POST" enctype="multipart/form-data"> {% endcomment %}
-            {% comment %} {% csrf_token %} {% endcomment %}
-            {% if job_form.errors %}
+    <h2>Update Job Details</h2>
+
+    {% if job_form.errors %}
         <div class="form-error">
+            <strong>Please fix the following errors:</strong>
             <ul>
                 {% for field in job_form %}
                     {% for error in field.errors %}
-                        <li>{{ field.label }}: {{ error }}</li>
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
                     {% endfor %}
                 {% endfor %}
                 {% for error in job_form.non_field_errors %}
@@ -29,24 +30,170 @@
     <form class="account-info-form" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         
-        {% for field in job_form %}
+        <!-- Job Basic Information -->
+        <div class="form-row">
             <div class="form-group">
-                {{ field.label_tag }}
-                {{ field }}
-                {% if field.help_text %}
-                    <div class="form-help">{{ field.help_text }}</div>
-                {% endif %}
-                {% if field.errors %}
-                    <div class="form-error">{{ field.errors }}</div>
+                {{ job_form.title.label_tag }}
+                {{ job_form.title }}
+                {% if job_form.title.help_text %}
+                    <div class="form-help">{{ job_form.title.help_text }}</div>
                 {% endif %}
             </div>
-        {% endfor %}
+            
+            <div class="form-group">
+                {{ job_form.job_type.label_tag }}
+                {{ job_form.job_type }}
+            </div>
+        </div>
 
-        <button type="submit" class="submit-btn">Submit Job</button>
-        <div class="back-link">
-      <a href="{% url 'jobs:view_job_detail' job.id %}">← Back to Job Details</a>
-    </div>
+        <div class="form-row">
+            <div class="form-group">
+                {{ job_form.location.label_tag }}
+                {{ job_form.location }}
+            </div>
+            
+            <div class="form-group">
+                {{ job_form.salary.label_tag }}
+                {{ job_form.salary }}
+                {% if job_form.salary.help_text %}
+                    <div class="form-help">{{ job_form.salary.help_text }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Job Details -->
+        <div class="form-row">
+            <div class="form-group">
+                {{ job_form.experience_required.label_tag }}
+                {{ job_form.experience_required }}
+                {% if job_form.experience_required.help_text %}
+                    <div class="form-help">{{ job_form.experience_required.help_text }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ job_form.deadline.label_tag }}
+                {{ job_form.deadline }}
+            </div>
+        </div>
+
+        <!-- Job Status and Category -->
+        <div class="form-row">
+            <div class="form-group">
+                {{ job_form.job_status.label_tag }}
+                {{ job_form.job_status }}
+            </div>
+            
+            <div class="form-group">
+                {{ job_form.job_category.label_tag }}
+                {{ job_form.job_category }}
+            </div>
+        </div>
+
+        <!-- Skills Required with Tagify -->
+        <div class="form-group">
+            {{ job_form.skills_required.label_tag }}
+            {{ job_form.skills_required }}
+            {% if job_form.skills_required.help_text %}
+                <div class="form-help">{{ job_form.skills_required.help_text }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Qualifications -->
+        <div class="form-group">
+            {{ job_form.qualifications.label_tag }}
+            {{ job_form.qualifications }}
+            {% if job_form.qualifications.help_text %}
+                <div class="form-help">{{ job_form.qualifications.help_text }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+            <span class="btn-text">Update Job Posting</span>
+        </button>
     </form>
+
+    <div class="back-link">
+        <a href="{% url 'jobs:view_job_detail' job.id %}">
+            ← Back to Job Details
+        </a>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Tagify for skills input
+    const skillsInput = document.querySelector('[name="skills_required"]');
+    if (skillsInput) {
+        const tagify = new Tagify(skillsInput, {
+            whitelist: [], // You can pre-populate with common skills
+            dropdown: {
+                maxItems: 20,
+                classname: "skills-dropdown",
+                enabled: 0,
+                closeOnSelect: false
+            },
+            duplicates: false,
+            backspace: "edit",
+            placeholder: "Type skills and press Enter...",
+            pattern: /^[a-zA-Z0-9\s\+#\.\-]{1,50}$/
+        });
+    }
+
+    // Form submission handling
+    const form = document.querySelector('.account-info-form');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+
+    form.addEventListener('submit', function() {
+        submitBtn.classList.add('loading');
+        btnText.textContent = 'Updating...';
+        submitBtn.disabled = true;
+    });
+
+    // Date input validation - ensure deadline is in the future
+    const deadlineInput = document.querySelector('[name="deadline"]');
+    if (deadlineInput) {
+        const today = new Date().toISOString().split('T')[0];
+        deadlineInput.min = today;
+        
+        deadlineInput.addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                this.setCustomValidity('Deadline must be in the future');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+
+    // Salary input formatting
+    const salaryInput = document.querySelector('[name="salary"]');
+    if (salaryInput) {
+        salaryInput.addEventListener('blur', function() {
+            const value = parseFloat(this.value);
+            if (!isNaN(value) && value > 0) {
+                this.value = value.toFixed(2);
+            }
+        });
+    }
+
+    // Pre-fill existing skills for Tagify
+    if (skillsInput && skillsInput.value) {
+        // Tagify will automatically parse the existing comma-separated values
+        setTimeout(() => {
+            const tagifyInstance = skillsInput.tagify;
+            if (tagifyInstance) {
+                tagifyInstance.DOM.input.focus();
+                tagifyInstance.DOM.input.blur();
+            }
+        }, 100);
+    }
+});
+</script>
 {% endblock content %}

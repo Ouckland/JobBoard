@@ -14,9 +14,9 @@
     <!-- CSRF Token for AJAX -->
     <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
 
-    <button id="mark-all-read" class="mark-all-btn">Mark All as Read</button>
-
     {% if notifications %}
+      <button id="mark-all-read" class="mark-all-btn">Mark All as Read</button>
+
       {% for notification in notifications %}
         <div class="notification-card {% if not notification.is_read %}unread{% endif %}" data-id="{{ notification.id }}">
           {% if notification.url %}
@@ -55,6 +55,16 @@
         }
       }
 
+      function setLoadingState(button, isLoading) {
+        if (isLoading) {
+          button.classList.add('loading');
+          button.disabled = true;
+        } else {
+          button.classList.remove('loading');
+          button.disabled = false;
+        }
+      }
+
       function postData(url, callback) {
         fetch(url, {
           method: 'POST',
@@ -70,11 +80,11 @@
           if (data.success) {
             callback(data.unread_count);
           } else {
-            alert('Failed to update.');
+            alert('Failed to update notification.');
           }
         })
         .catch(err => {
-          alert('Request failed');
+          alert('Request failed. Please check your connection.');
           console.error(err);
         });
       }
@@ -86,10 +96,13 @@
           const card = document.querySelector(`.notification-card[data-id="${notificationId}"]`);
           const btnRef = this;
 
+          setLoadingState(btnRef, true);
+          
           postData(`/jobs/notifications/read/${notificationId}/`, (unreadCount) => {
             card.classList.remove("unread");
             btnRef.remove();
             updateUnreadCount(unreadCount);
+            setLoadingState(btnRef, false);
           });
         });
       });
@@ -99,6 +112,8 @@
       if (markAllLink) {
         markAllLink.addEventListener("click", function (e) {
           e.preventDefault();
+          setLoadingState(this, true);
+          
           postData('/jobs/notifications/mark-all-as-read/', (unreadCount) => {
             document.querySelectorAll('.notification-card.unread').forEach(card => {
               card.classList.remove("unread");
@@ -106,6 +121,7 @@
               if (btn) btn.remove();
             });
             updateUnreadCount(unreadCount);
+            setLoadingState(this, false);
           });
         });
       }

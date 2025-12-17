@@ -4,6 +4,7 @@
 <title>jobsphere/basic-info/</title>
 {% endblock title %}
 {% block head %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -11,6 +12,7 @@
 {% endblock head %}
 
 {% block content %}
+  {% include "partials/header.html" %}
   <div class="basic-info-container">
     {% if account_type == 'employer' %}
       <h2>Employer Basic Information</h2>
@@ -19,7 +21,7 @@
       <h2>Job Seeker Basic Information</h2>
       <p>Provide your personal details to build your profile.</p>
     {% else %}
-      <h2>Basic Information</h2>
+      <h2>Update Basic Information</h2>
     {% endif %}
 
     <form method="POST" action="{% url 'users:update_basic_info' %}" enctype="multipart/form-data" class="basic-info-form" autocomplete="off">

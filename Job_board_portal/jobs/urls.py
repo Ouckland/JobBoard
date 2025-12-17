@@ -22,7 +22,9 @@ urlpatterns = [
     path('update-application/<int:application_id>/', views.update_application, name='update_application'),
     path('delete-application/<int:application_id>/', views.delete_application, name='delete_application'),
     path('review-application/<int:application_id>/', views.review_application, name='review_application'),
-    
+    path('application/<int:application_id>/compose-acceptance/', views.compose_acceptance_email, name='compose_acceptance_email'),
+
+
     path('job/saved/all/', views.saved_jobs, name='saved_jobs'),
     path('job/<int:job_id>/save/', views.save_job, name='save_job'),
     path('job/<int:job_id>/unsave/', views.unsave_job, name='unsave_job'),

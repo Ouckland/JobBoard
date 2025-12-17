@@ -1,43 +1,144 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+/* Import Facebook-like font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-body, html {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
+/* ===== MOBILE FIRST - SOCIAL MEDIA STYLE ===== */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #000;
+}
+
+/* ===== DYNAMIC MAIN NAVBAR ===== */
 .main-navbar {
-  width: 80%;
   position: fixed;
   top: 0;
-  left: 100px;
+  left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 32px #000b;
+  background: #000;
+  border-bottom: 1px solid #333;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 1.5rem;
+  padding: 1rem;
+  height: 70px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+}
+
+/* Header states */
+.main-navbar.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.main-navbar.hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Show header on hover when hidden */
+.main-navbar.hidden:hover {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Adjust body padding based on header state */
+body.header-visible {
+  padding-top: 70px;
+}
+
+body.header-hidden {
+  padding-top: 0;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
 }
 
 .navbar-logo {
   color: #fff;
   font-size: 1.4rem;
   font-weight: 700;
-  letter-spacing: 1px;
   text-decoration: none;
-  text-shadow: 0 2px 10px #000;
+  letter-spacing: -0.5px;
+  transition: color 0.2s ease;
 }
 
-.navbar-links {
+.navbar-logo:hover {
+  color: #1d9bf0;
+}
+
+/* ===== HAMBURGER MENU - MODERN STYLE ===== */
+.hamburger {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 1rem;
-  transition: max-height 0.4s ease-in-out;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1100;
+}
+
+.hamburger img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(1000%);
+  transition: all 0.3s ease;
+}
+
+.hamburger.active {
+  border-color: #1d9bf0;
+  background: rgba(29, 155, 240, 0.1);
+}
+
+.hamburger.active img {
+  transform: rotate(90deg);
+  filter: brightness(1000%) sepia(1) hue-rotate(180deg) saturate(5);
+}
+
+/* ===== NAVBAR LINKS ===== */
+.navbar-links {
+  display: none;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  background: #000;
+  border-bottom: 1px solid #333;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 0.5rem;
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-links.open {
+  display: flex;
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .navbar-links a {
@@ -45,109 +146,183 @@ body, html {
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
-  padding: 0.3em 0.8em;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  transition: all 0.2s;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.navbar-links a:hover {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 12px #fff3;
-  text-shadow: 0 0 6px #fff;
+.navbar-links a:active {
+  background: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
 }
 
+/* Notification Badge */
+.notif-badge {
+  background: #1d9bf0;
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Logout Form */
 .navbar-logout-form {
-  display: inline;
+  width: 100%;
+  margin-top: 0.5rem;
 }
 
 .logout-btn {
-  display: flex;
-  background: rgba(24, 24, 24, 0.85);
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
-  border: 1.2px solid #333;
-  border-radius: 6px;
-  padding: 0.3em 1em;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-left: 1rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
 }
 
-.logout-btn:hover {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
-  box-shadow: 0 2px 18px #fff8;
+.logout-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #666;
 }
 
-.notif-badge {
-  background: #fff;
-  color: #111;
-  font-weight: bold;
-  padding: 0.15em 0.6em;
-  font-size: 0.85em;
-  border-radius: 50%;
-  margin-left: 0.4em;
-}
-
-/* Hamburger Button */
-.hamburger {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.3rem;
-  z-index: 1100;
-}
-
-.hamburger img {
-  width: 28px;
-  height: 28px;
-  filter: brightness(1000%);
-}
-
-/* Responsive Style */
-@media (max-width: 768px) {
+/* ===== TABLET STYLES ===== */
+@media (min-width: 768px) {
+  .main-navbar {
+    padding: 1rem 2rem;
+  }
 
   .hamburger {
-    display: block;
+    display: none;
   }
 
   .navbar-links {
-    position: absolute;
-    top: 100%;
-    left: 10px;
-    width: 100%;
-    background: rgba(12, 12, 14, 0.95);
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
+    display: flex;
+    position: static;
+    flex-direction: row;
+    background: transparent;
+    border-bottom: none;
     padding: 0;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .navbar-links.open {
-    max-height: 1000px;
+    transform: none;
     opacity: 1;
-    pointer-events: auto;
-    padding: 1rem;
+    gap: 1rem;
   }
 
-  .navbar-links a,
-  .logout-btn {
-    width: 100%;
-    padding: 0.8em 1.2em;
-    font-size: 1rem;
-    margin-bottom: 0.4rem;
+  .navbar-links a {
+    padding: 0.6rem 1rem;
+    background: transparent;
+    border: 1px solid transparent;
+  }
+
+  .navbar-links a:hover {
+    color: #1d9bf0;
   }
 
   .navbar-logout-form {
-    width: 100%;
+    width: auto;
+    margin-top: 0;
+    margin-left: 0.5rem;
+  }
+
+  .logout-btn {
+    width: auto;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .logout-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #666;
+  }
+}
+
+/* ===== DESKTOP STYLES ===== */
+@media (min-width: 1024px) {
+  .main-navbar {
+    padding: 1rem 3rem;
+  }
+
+  .navbar-logo {
+    font-size: 1.5rem;
+  }
+
+  .navbar-links {
+    gap: 1.5rem;
+  }
+
+  .navbar-links a {
+    font-size: 1rem;
+  }
+}
+
+/* ===== ENHANCED ANIMATIONS ===== */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.navbar-links.open {
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-links a {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.navbar-links a:nth-child(1) { animation-delay: 0.1s; }
+.navbar-links a:nth-child(2) { animation-delay: 0.15s; }
+.navbar-links a:nth-child(3) { animation-delay: 0.2s; }
+.navbar-links a:nth-child(4) { animation-delay: 0.25s; }
+
+/* ===== BACKDROP EFFECT FOR MOBILE ===== */
+.navbar-links::before {
+  content: '';
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.navbar-links.open::before {
+  opacity: 1;
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .hamburger {
+    cursor: pointer;
+  }
+  
+  .navbar-links a {
+    -webkit-tap-highlight-color: rgba(29, 155, 240, 0.1);
   }
 }

@@ -13,16 +13,14 @@ class JobType(models.TextChoices):
     ft = 'FT', 'Full-Time'
     pt = 'PT', 'Part-Time'
 
+class Status(models.TextChoices):
+    pending = 'pending', 'Pending'
+    accepted = 'accepted', 'Accepted' 
+    rejected = 'rejected', 'Rejected'
+
 class JobStatus(models.TextChoices):
     closed = 'closed', 'Closed'
     open = 'open', 'Open'
-
-class Status(models.TextChoices):
-    pending = 'pending', 'PENDING'
-    accepted = 'accepted', 'ACCEPTED'
-    rejected = 'rejected', 'REJECTED'
-
-
 
 class JobPosting(models.Model):
     employer = models.ForeignKey(EmployerProfile, on_delete=models.CASCADE, related_name='posted_jobs')
@@ -62,7 +60,7 @@ class JobApplication(models.Model):
     cover_letter = models.TextField()
     resume = models.FileField(upload_to='resumes/')
     attachments = models.FileField(upload_to='attachments/', blank=True, null=True)
-    status = models.CharField(max_length=10, choices=Status.choices, default=Status.pending)
+    status = models.CharField(max_length=14, choices=Status.choices, default=Status.pending)
 
     class Meta:
         unique_together = ('job', 'applicant')
@@ -74,6 +72,23 @@ class JobApplication(models.Model):
 
     def __str__(self):
         return f'{self.applicant.full_name} applied for {self.job.title}'
+
+
+
+
+# application, reviewer, status, employer message, reviewed_at
+class ApplicationReview(models.Model):
+    application = models.OneToOneField(JobApplication, on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(EmployerProfile, on_delete=models.CASCADE)
+    employer_message = models.TextField(blank=True, null=True)
+    reviewed_at = models.DateTimeField(auto_now=True)    
+
+    def __str__(self):
+        return f'Review of {self.application} by {self.reviewer.company_name}'
+
+    def get_review_status_display(self):
+        return self.get_status_display()
+
 
 def get_default_user():
     return User.objects.first() if User.objects.exists() else None

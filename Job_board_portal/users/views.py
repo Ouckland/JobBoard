@@ -36,7 +36,7 @@ def email_signup_view(request):
                 if existing_otp.is_expired:
                     existing_otp.delete()  # clean up expired OTP so we can generate a new one
                 else:
-                    messages.error(request, 'OTP already sent to this email. Please wait or check your inbox.')
+                    messages.error(request, 'OTP already sent to this email. Please Try again in 5 minutes.')
                     return redirect('users:email_sign_up')
 
             # Generate new OTP
@@ -117,7 +117,7 @@ def resend_otp(request, user_email):
         
         # Generate OTP
         otp = str(random.randint(100000, 999999))
-
+        
         # Store OTP in the database or update if it already exists
         OTP.objects.update_or_create(
             user_email=user_email,
@@ -137,13 +137,63 @@ def resend_otp(request, user_email):
     return render(request, 'user/validate-otp.html', {'user_email': user_email})
 
 
+
+
+
+
+
+User = get_user_model()
+
+def create_or_update_user(email, username, password, **kwargs):
+    """
+    Helper function to create or update a user
+    Returns tuple: (user, created, updated)
+    """
+    try:
+        # Try to get existing user by email
+        user = User.objects.get(email=email)
+        updated = False
+        
+        # Update fields if they're different
+        if username and user.username != username:
+            if User.objects.filter(username=username).exclude(email=email).exists():
+                return None, False, False  # Username taken by another user
+            user.username = username
+            updated = True
+            
+        if password and not user.check_password(password):
+            user.set_password(password)
+            updated = True
+            
+        for field, value in kwargs.items():
+            if hasattr(user, field) and getattr(user, field) != value:
+                setattr(user, field, value)
+                updated = True
+                
+        if updated:
+            user.save()
+        return user, False, updated
+        
+    except User.DoesNotExist:
+        # Create new user
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            **kwargs
+        )
+        return user, True, False
+
 def choose_account_type_view(request):
     user_email = request.session.get('signup_email')
     sign_up_data = request.session.get('signup_form_data')
     
     if not user_email or not sign_up_data:
-        messages.error(request, "Session expired. Please restart the sign-up process.")
-        return redirect('users:email_signup')
+
+        user = request.user
+        user.delete()
+        messages.error(request, "Session expired. Account info has been wiped. Please restart the sign-up process.")
+        return redirect('users:email_sign_up')
 
     password = sign_up_data.get('password')
     form = ChooseAccountTypeForm(user_email=user_email)
@@ -154,33 +204,41 @@ def choose_account_type_view(request):
             username = form.cleaned_data.get('username')
             account_type = form.cleaned_data.get('account_type')
 
-            # Check if username already exists
-            if User.objects.filter(username=username).exists():
+            
+            # Use our helper function
+            
+            user, created, updated = create_or_update_user(
+                email=user_email,
+                username=username,
+                password=password,
+                is_active=False
+            )
+            
+            if not user:
                 messages.error(request, "Username already exists! Please try another one.")
                 return redirect('users:choose_account_type')
 
-            # Create user
-            user = User.objects.create_user(
-                username=username,
-                email=user_email,
-                password=password
-            )
-            user.is_active = False  # Will activate after completing profile
-            user.save()
-
-            # Create appropriate profile
-            if account_type == 'seeker':
-                SeekerProfile.objects.create(user=user, account_type='seeker')
-            elif account_type == 'employer':
-                EmployerProfile.objects.create(user=user, account_type='employer')
+            # Create appropriate profile if it doesn't exist
+            try:
+                if account_type == 'seeker':
+                    SeekerProfile.objects.get_or_create(user=user, defaults={'account_type': 'seeker'})
+                elif account_type == 'employer':
+                    EmployerProfile.objects.get_or_create(user=user, defaults={'account_type': 'employer'})
+            except Exception as e:
+                messages.error(request, f"Error creating profile: {str(e)}")
+                return redirect('users:choose_account_type')
 
             # Store info in session for next steps
             request.session['pending_user_id'] = user.id
             request.session['account_type'] = account_type
 
-            return redirect('users:basic_info')  # Go to next setup step
+            messages.success(request, "Account type selected successfully!")
+            return redirect('users:basic_info')
 
     return render(request, 'user/account-type.html', {'form': form})
+
+
+
 
 
 def basic_info_view(request):
@@ -278,8 +336,16 @@ def login_view(request):
             password = form.cleaned_data.get('password')
 
             user = authenticate(request, username=username, password=password)
+            print(user)            
             if user:
                 login(request, user)
+                profile, profile_type = get_user_profile(user)
+                if not profile:
+                    user.username = user.email
+                    user.save()
+                    request.session['password'] = password
+                    messages.error(request, "Profile not found. Please complete your profile setup.")
+                    return redirect('users:choose_account_type')
 
                 # Welcome notification from session
                 if request.session.get('show_welcome_notification'):
@@ -328,6 +394,7 @@ def forgot_password(request):
 
             # Generate OTP
             otp = str(random.randint(100000, 999999))
+            
             OTP.objects.update_or_create(
                 user_email=user_email,
                 defaults={'otp': otp, 'created_at': timezone.now()}
@@ -346,6 +413,8 @@ def forgot_password(request):
             return redirect('users:validate_reset_otp', user_email=user_email)
 
     return render(request, 'user/forgot-password.html', {'form': form})
+
+
 def validate_reset_otp(request, user_email):
     # Make sure we use the email from session only
     user_email = request.session.get('user_email')
@@ -672,18 +741,12 @@ def public_profile(request, username):
     })
 
 
-@login_required
-def profile_setup(request):
-    user = request.user
-    if not user:
-        messages.error(request, "Session expired. Please log in again")
-        return redirect('users:login')
-    
-    profile = get_user_profile(user)
-    if not profile:
-        pass
-        
-    return render(request, 'user/profile-setup.html') 
+
+
+
+
+
+
 
 @login_required
 def account_settings(request):

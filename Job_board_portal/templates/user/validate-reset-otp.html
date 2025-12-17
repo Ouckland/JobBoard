@@ -6,41 +6,59 @@
 {% endblock title %}
 
 {% block head %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{% static 'css/validate-otp.css' %}">
 {% endblock head %}
 
 {% block content %}
   <div class="container">
-    <h2>Verify OTP</h2>
-    <p>An OTP was sent to <strong>{{ user_email }}</strong>. Please enter it below:</p>
-    <form method="POST" action="{% url 'users:validate_reset_otp' user_email=user_email %}" autocomplete="off">
-      {% csrf_token %}
-      <div class="otp-input-group">
-        {% for i in "123456" %}
-          <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-input" required>
-        {% endfor %}
-      </div>
-      <input type="hidden" name="otp" id="otp-hidden">
-      <button type="submit" class="submit-btn">Verify</button>
-    </form>
-    <a href="{% url 'users:resend_reset_otp' user_email=user_email %}" class="resend-link">Resend OTP</a>
+    <div>
+      <h2>Verify OTP</h2>
+      <p>An OTP was sent to <strong>{{ user_email }}</strong>. Please enter it below:</p>
+      <form method="POST" action="{% url 'users:validate_reset_otp' user_email=user_email %}" autocomplete="off">
+        {% csrf_token %}
+        <div class="otp-input-group">
+          {% for i in "123456" %}
+            <input type="text" maxlength="1" pattern="[0-9]*" inputmode="numeric" class="otp-input" required>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="otp" id="otp-hidden">
+        <button type="submit" class="submit-btn">Verify</button>
+      </form>
+      <a href="{% url 'users:resend_reset_otp' user_email=user_email %}" class="resend-link">Resend OTP</a>
+    </div>
   </div>
   <script>
-    // Auto-focus and move to next input
     document.addEventListener('DOMContentLoaded', function() {
       const inputs = document.querySelectorAll('.otp-input');
+      
+      // Auto-focus and move to next input
       inputs.forEach((input, idx) => {
         input.addEventListener('input', function() {
           if (this.value.length === 1 && idx < inputs.length - 1) {
             inputs[idx + 1].focus();
           }
+          // Auto-submit when all fields are filled
+          const allFilled = Array.from(inputs).every(input => input.value.length === 1);
+          if (allFilled) {
+            document.querySelector('form').dispatchEvent(new Event('submit', {cancelable: true}));
+          }
         });
+        
         input.addEventListener('keydown', function(e) {
           if (e.key === "Backspace" && !this.value && idx > 0) {
             inputs[idx - 1].focus();
           }
         });
+        
+        // Prevent non-numeric input
+        input.addEventListener('keypress', function(e) {
+          if (!/[0-9]/.test(e.key)) {
+            e.preventDefault();
+          }
+        });
       });
+      
       if (inputs.length) inputs[0].focus();
 
       // On submit, combine all boxes into hidden otp field

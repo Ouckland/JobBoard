@@ -1,57 +1,678 @@
 {% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/review-application.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock head %}
+
 {% block content %}
-    {% include "partials/header.html" %}
+{% include "partials/header.html" %}
 
-    <section style="max-width: 700px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 10px;">
-        <h2 style="margin-bottom: 1rem;">Review Application for: <span style="color: #333;">{{ application.job.title }}</span></h2>
-
-        <div style="margin-bottom: 1rem;">
-            <h3>Applicant Info</h3>
-            <p><strong>Name:</strong> {{ application.applicant.full_name }}</p>
-            <p><strong>Email:</strong> {{ application.applicant.user.email }}</p>
-            <p><strong>Bio:</strong> {{ application.applicant.bio }}</p>
+<section class="review-section">
+    <div class="review-container">
+        <!-- Header Section -->
+        <div class="section-header">
+            <h2>Review Application for: <span class="job-title">{{ application.job.title }}</span></h2>
         </div>
 
-        <div style="margin-bottom: 1rem;">
-            <h3>Cover Letter</h3>
-            <p style="white-space: pre-line;">{{ application.cover_letter }}</p>
-        </div>
-
-        <div style="margin-bottom: 1rem;">
-            <h3>Resume</h3>
-            <a href="{{ application.resume.url }}" download style="color: #007bff;">Download Resume</a>
-        </div>
-
-        {% if application.attachments %}
-            <div style="margin-bottom: 1rem;">
-                <h3>Attachment</h3>
-                <a href="{{ application.attachments.url }}" download style="color: #007bff;">Download Attachment</a>
+        <!-- Applicant Information -->
+        <div class="content-section">
+            <h3 class="section-title">
+                <i class="fas fa-user"></i>
+                Applicant Information
+            </h3>
+            <div class="applicant-info-grid">
+                <div class="info-item">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{ application.applicant.full_name|default:"Not provided" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value">{{ application.applicant.user.email }}</span>
+                </div>
+                <div class="info-item full-width">
+                    <span class="info-label">Professional Bio</span>
+                    <span class="info-value">{{ application.applicant.bio|default:"No bio provided" }}</span>
+                </div>
             </div>
-        {% endif %}
+        </div>
 
-        <p><strong>Applied on:</strong> {{ application.application_date|date:"F j, Y" }}</p>
-        <p><strong>Current Status:</strong> 
-            {% if application.status == 'accepted' %}
-                <span style="color: green;">Accepted</span>
-            {% elif application.status == 'rejected' %}
-                <span style="color: red;">Rejected</span>
-            {% else %}
-                <span style="color: orange;">Pending</span>
-            {% endif %}
-        </p>
+        <!-- Cover Letter -->
+        <div class="content-section">
+            <h3 class="section-title">
+                <i class="fas fa-envelope"></i>
+                Cover Letter
+            </h3>
+            <div class="cover-letter-content">
+                <p class="cover-letter-text">{{ application.cover_letter|default:"No cover letter provided." }}</p>
+            </div>
+        </div>
 
-        {% if application.status == 'pending' %}
-            <form action="{% url 'jobs:review_application' application.id %}" method="POST" style="margin-top: 2rem;">
-                {% csrf_token %}
-                <button type="submit" name="action" value="accept" style="padding: 0.5rem 1rem; background-color: #4CAF50; color: white; border: none; border-radius: 5px; margin-right: 1rem;">
-                    Accept
+        <!-- Documents -->
+        <div class="content-section">
+            <h3 class="section-title">
+                <i class="fas fa-file-alt"></i>
+                Application Documents
+            </h3>
+            <div class="documents-grid">
+                <!-- Resume -->
+                <div class="document-card">
+                    <div class="document-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="document-info">
+                        <h4 class="document-name">Resume</h4>
+                        <a href="{{ application.resume.url }}" download class="document-action">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Additional Attachments -->
+                {% if application.attachments %}
+                <div class="document-card">
+                    <div class="document-icon">
+                        <i class="fas fa-paperclip"></i>
+                    </div>
+                    <div class="document-info">
+                        <h4 class="document-name">Additional Attachment</h4>
+                        <a href="{{ application.attachments.url }}" download class="document-action">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Application Status & Actions -->
+<div class="content-section">
+    <div class="status-section">
+        <div class="status-info">
+            <div class="status-item">
+                <span class="info-label">Applied on:</span>
+                <span class="info-value">{{ application.application_date|date:"F j, Y" }}</span>
+            </div>
+            <div class="status-item">
+                <span class="info-label">Current Status:</span>
+                <span class="status-badge status-{{ application.status }}">
+                    <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                    {{ application.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <!-- SIMPLIFIED ACTION BUTTONS -->
+        <form action="{% url 'jobs:review_application' application.id %}" method="POST" class="action-form">
+            {% csrf_token %}
+            <div class="action-buttons">
+                
+                {% if application.status == 'pending' %}
+                <button type="submit" name="action" value="accept" class="accept-btn">
+                    <i class="fas fa-check-circle"></i>
+                    Accept & Send Email
                 </button>
-                <button type="submit" name="action" value="reject" style="padding: 0.5rem 1rem; background-color: #d32f2f; color: white; border: none; border-radius: 5px;">
-                    Reject
+                <button type="submit" name="action" value="reject" class="reject-btn">
+                    <i class="fas fa-times-circle"></i>
+                    Reject Application
                 </button>
-            </form>
-        {% else %}
-            <p style="margin-top: 1rem; font-style: italic; color: #555;">This application has already been {{ application.status }}.</p>
-        {% endif %}
-    </section>
+                
+                {% else %}
+                <div class="decision-made decision-{{ application.status }}">
+                    <div class="decision-icon">
+                        {% if application.status == 'accepted' or application.status == 'hired' or application.status == 'offer' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% else %}
+                            <i class="fas fa-times-circle"></i>
+                        {% endif %}
+                    </div>
+                    <p class="decision-text">
+                        This application has been <strong>{{ application.get_status_display }}</strong>.
+                    </p>
+                    {% if application.status == 'accepted' or application.status == 'hired' or application.status == 'offer' %}
+                    <p class="decision-subtext">
+                        An acceptance email was sent to the candidate.
+                    </p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add confirmation for actions
+    const acceptBtn = document.querySelector('.accept-btn');
+    const rejectBtn = document.querySelector('.reject-btn');
+    
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to accept this application? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to reject this application? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'a':
+                    if (acceptBtn) {
+                        e.preventDefault();
+                        acceptBtn.click();
+                    }
+                    break;
+                case 'r':
+                    if (rejectBtn) {
+                        e.preventDefault();
+                        rejectBtn.click();
+                    }
+                    break;
+            }
+        }
+    });
+    
+    // Add document preview functionality (basic)
+    const documentLinks = document.querySelectorAll('.document-action');
+    documentLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // You can enhance this to show previews in a modal
+            console.log('Downloading document:', this.href);
+        });
+    });
+});
+</script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== BASE STYLES - DARK THEME ===== */
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== REVIEW SECTION ===== */
+.review-section {
+  max-width: 800px;
+  margin: 80px auto 2rem;
+  padding: 0 1rem;
+}
+
+.review-container {
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-header {
+  padding: 1.5rem;
+  background: #000;
+  border-bottom: 1px solid #333;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.job-title {
+  color: #1d9bf0;
+  font-weight: 600;
+}
+
+/* ===== CONTENT SECTIONS ===== */
+.content-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.content-section:last-of-type {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title i {
+  color: #1d9bf0;
+  font-size: 1rem;
+}
+
+/* ===== APPLICANT INFO ===== */
+.applicant-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: #71767b;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ===== COVER LETTER ===== */
+.cover-letter-content {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.cover-letter-text {
+  white-space: pre-line;
+  line-height: 1.6;
+  color: #e7e9ea;
+  margin: 0;
+}
+
+/* ===== DOCUMENTS SECTION ===== */
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.document-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.document-card:hover {
+  border-color: #444;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.document-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(29, 155, 240, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1d9bf0;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.document-info {
+  flex: 1;
+}
+
+.document-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.25rem 0;
+}
+
+.document-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #1d9bf0;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.document-action:hover {
+  background: #1a8cd8;
+  transform: translateY(-1px);
+}
+
+/* ===== APPLICATION STATUS ===== */
+.status-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pending {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.status-accepted {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-rejected {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.accept-btn, .reject-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.accept-btn {
+  background: #10b981;
+  color: #fff;
+}
+
+.accept-btn:hover {
+  background: #0da271;
+  transform: translateY(-1px);
+}
+
+.reject-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.reject-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.accept-btn:active, .reject-btn:active {
+  transform: translateY(0);
+}
+
+/* ===== DECISION MADE STATE ===== */
+.decision-made {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+.decision-subtext {
+    font-size: 0.9rem;
+    color: #71767b;
+    margin: 0.5rem 0 0 0;
+    font-style: italic;
+}
+
+.decision-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.decision-accepted .decision-icon {
+  color: #10b981;
+}
+
+.decision-rejected .decision-icon {
+  color: #ef4444;
+}
+
+.decision-text {
+  font-size: 1rem;
+  color: #71767b;
+  margin: 0;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .review-section {
+    margin: 70px auto 1rem;
+    padding: 0 0.75rem;
+  }
+
+  .section-header {
+    padding: 1.25rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .content-section {
+    padding: 1.25rem;
+  }
+
+  .applicant-info-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .accept-btn, .reject-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .review-section {
+    margin: 60px auto 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .section-header {
+    padding: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.125rem;
+  }
+
+  .content-section {
+    padding: 1rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .accept-btn, .reject-btn {
+    width: 100%;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .document-card,
+  .accept-btn,
+  .reject-btn,
+  .document-action {
+    transition: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.accept-btn:focus,
+.reject-btn:focus,
+.document-action:focus {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 2px;
+}
+
+.document-card:focus-within {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 2px;
+}
+
+/* ===== ENHANCED BUTTON STYLES ===== */
+.shortlist-btn {
+    background: #a855f7;
+    color: #fff;
+}
+
+.shortlist-btn:hover {
+    background: #9333ea;
+}
+
+.interview-btn {
+    background: #f59e0b;
+    color: #fff;
+}
+
+.interview-btn:hover {
+    background: #d97706;
+}
+
+.offer-btn {
+    background: #10b981;
+    color: #fff;
+}
+
+.offer-btn:hover {
+    background: #0da271;
+}
+
+.hire-btn {
+    background: #059669;
+    color: #fff;
+}
+
+.hire-btn:hover {
+    background: #047857;
+}
+
+.reject-btn {
+    background: #ef4444;
+    color: #fff;
+}
+
+.reject-btn:hover {
+    background: #dc2626;
+}
+
+/* Make all buttons consistent */
+.shortlist-btn, .interview-btn, .offer-btn, .hire-btn, .reject-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    text-decoration: none;
+}
+
+.shortlist-btn:hover, .interview-btn:hover, .offer-btn:hover, 
+.hire-btn:hover, .reject-btn:hover {
+    transform: translateY(-1px);
+}
+
+.shortlist-btn:active, .interview-btn:active, .offer-btn:active,
+.hire-btn:active, .reject-btn:active {
+    transform: translateY(0);
+}
+</style>
 {% endblock content %}

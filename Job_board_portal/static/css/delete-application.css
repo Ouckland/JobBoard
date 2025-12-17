@@ -1,105 +1,208 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* ===== BASE STYLES - DARK THEME ===== */
 body, html {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
   padding: 0;
-  background: radial-gradient(circle at 60% 20%, #111216 0%, #050509 60%, #000);
-  color: #f0f0f0;
+  background: #000;
+  color: #fff;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* SECTION CARD */
+/* ===== SECTION CONTAINER - DARK CARD STYLE ===== */
 .delete-application-section {
-  max-width: 600px;
-  margin: 5rem auto;
-  padding: 2rem;
-  background: rgba(20, 20, 28, 0.85);
-  border-radius: 16px;
-  box-shadow: 0 12px 48px #000a, 0 0 0 1.5px #ffffff22 inset;
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1.5px solid #2c2c3a;
-  text-align: center;
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 0;
+  border-radius: 12px;
+  background: #000;
+  border: 1px solid #333;
+  overflow: hidden;
 }
 
 .delete-application-section h1 {
-  color: #ff4e4e;
-  font-size: 1.8rem;
-  margin-bottom: 1.2rem;
-  text-shadow: 0 2px 12px #000;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 2rem;
+  background: #000;
+  border-bottom: 1px solid #333;
+  color: #e41e3f;
+  text-align: center;
 }
 
+/* ===== CONTENT AREA ===== */
 .delete-message {
-  font-size: 1.1rem;
-  color: #ddd;
-  margin-bottom: 2rem;
+  padding: 2rem;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #fff;
+  text-align: center;
+  border-bottom: 1px solid #333;
 }
 
-/* BUTTONS */
+.delete-message strong {
+  color: #1d9bf0;
+  font-weight: 600;
+}
+
+/* ===== FORM STYLES ===== */
+form {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #333;
+}
+
+/* ===== BUTTON STYLES - DARK THEME ===== */
 .btn {
-  padding: 0.6rem 1.4rem;
-  border-radius: 10px;
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: 0.9375rem;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  display: block;
 }
 
 .btn-danger {
-  background: linear-gradient(90deg, #ff4e4e 0%, #882222 100%);
+  background: #e41e3f;
   color: #fff;
-  box-shadow: 0 2px 12px #ff4e4e66;
 }
 
 .btn-danger:hover {
-  background: #fff;
-  color: #000;
-  box-shadow: 0 4px 18px #ffffff88;
-  transform: scale(1.05);
+  background: #c91c37;
 }
 
-/* CANCEL LINK */
+.btn-danger:active {
+  background: #b51932;
+  transform: scale(0.98);
+}
+
+/* ===== CANCEL LINK ===== */
 .cancel-link {
-  margin-top: 1.5rem;
+  padding: 1.5rem 2rem;
+  text-align: center;
 }
 
 .cancel-link a {
-  color: #fff;
-  text-decoration: underline;
+  color: #71767b;
+  text-decoration: none;
+  font-size: 0.9375rem;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
 }
 
 .cancel-link a:hover {
-  color: #aaa;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-/* MEDIA QUERIES */
+.cancel-link a:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .delete-application-section {
-    margin: 3rem 1rem;
+    margin: 1rem;
+    border-radius: 12px;
+  }
+
+  .delete-application-section h1 {
     padding: 1.5rem;
+    font-size: 1.3rem;
+  }
+
+  .delete-message {
+    padding: 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  form {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .cancel-link {
+    padding: 1.25rem 1.5rem;
   }
 
   .btn {
-    width: 100%;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
   }
 }
 
 @media (max-width: 480px) {
   .delete-application-section {
-    margin: 2rem 0.7rem;
-    padding: 1.2rem;
+    margin: 0.5rem;
+    border-radius: 8px;
   }
 
   .delete-application-section h1 {
-    font-size: 1.5rem;
+    padding: 1.25rem;
+    font-size: 1.2rem;
   }
 
   .delete-message {
-    font-size: 1rem;
+    padding: 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  form {
+    padding: 1rem 1.25rem;
+  }
+
+  .cancel-link {
+    padding: 1rem 1.25rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .cancel-link a {
+    font-size: 0.875rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .cancel-link a {
+    transition: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.btn:focus,
+.cancel-link a:focus {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 2px;
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .delete-application-section {
+    border-color: #fff;
+  }
+  
+  .delete-message {
+    border-color: #fff;
+  }
+  
+  form {
+    border-color: #fff;
   }
 }

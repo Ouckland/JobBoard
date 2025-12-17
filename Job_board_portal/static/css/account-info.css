@@ -1,54 +1,91 @@
-body, html {
-  min-height: 100vh;
+/* Import Facebook-like font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== SIMPLE FIX FOR VIEWPORT ISSUE ===== */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
   margin: 0;
   padding: 0;
-  background: radial-gradient(ellipse at 50% 30%, #181a1f 0%, #0a0a0a 80%, #000 100%);
-  color: #fff;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
 }
 
+html {
+  font-size: 16px; /* Larger base font to prevent zoom */
+  -webkit-text-size-adjust: 100%;
+}
+
+body, html {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  padding: 0;
+  margin: 0;
+}
+
+
+/* Phone number group styling for account info page */
+.phone-number-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.phone-code-select {
+    min-width: 100px;
+    max-width: 120px;
+}
+
+.phone-number-input {
+    flex: 1;
+}
+
+/* Simple container - no flex, no complex positioning */
 .account-info-container {
-  background: rgba(10, 10, 10, 0.96);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px 0 #000, 0 0 0 1.5px #fff1 inset;
-  padding: 2.5rem 2rem 2rem 2rem;
-  color: #fff;
-  border: 1.5px solid #222;
-  max-width: 540px;
   width: 100%;
-  margin: 10vh auto 0 auto;
-  text-align: center;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  min-height: 100vh;
+  padding: 15px 10px;
+  background: #000;
 }
 
-h2 {
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 12px #000a;
+.account-info-container > div {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px 15px;
 }
 
+/* Header */
+.account-info-container h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+  color: #fff;
+  text-align: left;
+}
+
+/* Form styling */
 .account-info-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 15px;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
+  width: 100%;
 }
 
 .form-group label {
-  margin-bottom: 0.4rem;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: #fff;
+  color: #e7e9ea;
 }
 
+/* Input fields */
 .form-group input[type="text"],
 .form-group input[type="file"],
 .form-group input[type="email"],
@@ -56,111 +93,166 @@ h2 {
 .form-group input[type="url"],
 .form-group select,
 .form-group textarea {
-  padding: 0.7rem 1rem;
-  border-radius: 10px;
-  border: 1.5px solid #222;
-  background: rgba(20, 20, 20, 0.85);
-  color: #fff;
-  font-size: 1rem;
-  outline: none;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 8px #000a inset;
   width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 0.2rem;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  -webkit-appearance: none;
+  min-height: 50px;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border: 1.5px solid #fff;
-  background: #181a1f;
-  box-shadow: 0 0 8px #fff8;
+  border-color: #1d9bf0;
 }
 
-.form-help {
-  color: #aaa;
-  font-size: 0.95em;
-  margin-bottom: 0.2em;
-}
-
-.form-error {
-  color: #ff6b6b;
-  background: rgba(30, 0, 0, 0.15);
-  border-left: 3px solid #ff6b6b;
-  padding: 0.4em 0.8em;
-  margin: 0.7em 0 0.3em 0;
-  font-size: 0.97em;
-  font-weight: 500;
-  border-radius: 6px;
-  letter-spacing: 0.2px;
-  text-align: left;
-  box-shadow: 0 2px 8px #0002;
-  width: 100%;
-}
-
-.submit-btn {
-  margin-top: 0.5rem;
-  padding: 0.8rem 0;
-  width: 100%;
-  background: #fff;
-  color: #000;
-  font-weight: bold;
-  border-radius: 12px;
-  border: none;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-  box-shadow: 0 0 18px #fff2, 0 0 32px #fff1;
-  cursor: pointer;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
-}
-
-.submit-btn:hover {
-  background: #181a1f;
-  color: #fff;
-  box-shadow: 0 0 40px #fff, 0 0 80px #fff;
-  border: 1.5px solid #fff;
-}
-
+/* File upload group */
 .file-upload-group input[type="file"] {
-  display: block;
-  padding: 0.5rem 0.7rem;
-  background: #222;
-  color: #fff;
+  padding: 12px;
+  background: #000;
+  border: 1px solid #333;
   border-radius: 8px;
-  border: 1.5px solid #333;
-  font-size: 1rem;
-  margin-bottom: 0.3rem;
+  color: #fff;
+  font-size: 14px;
+  min-height: 50px;
 }
 
 .file-upload-group .file-preview img {
-  margin-top: 0.5rem;
-  border: 2px solid #444;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px #000a;
+  margin-top: 10px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  max-width: 120px;
+  max-height: 120px;
 }
 
-.tagify {
-  background: rgba(20, 20, 20, 0.85);
-  border-radius: 10px;
-  border: 1.5px solid #222;
-  color: #fff;
+/* Help text */
+.form-help {
+  color: #71767b;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
+}
+
+/* Error messages */
+.form-error {
+  color: #f91880;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  font-weight: 500;
+  display: block;
+  background: rgba(249, 24, 128, 0.05);
+  border-left: 2px solid #f91880;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
   font-size: 1rem;
-  box-shadow: 0 1px 8px #000a inset;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  min-height: 50px;
+  margin-top: 10px;
 }
 
-@media (max-width: 600px) {
+.submit-btn:active {
+  background: #d7dbdc;
+}
+
+/* ===== TAGIFY CUSTOM STYLES ===== */
+.tagify {
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  padding: 8px;
+  min-height: 50px;
+}
+
+.tagify:focus {
+  border-color: #1d9bf0;
+}
+
+.tagify__tag {
+  background: #1d9bf0;
+  color: #000;
+  border-radius: 4px;
+  margin: 2px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.tagify__tag__removeBtn {
+  color: #000;
+  opacity: 0.7;
+}
+
+.tagify__input {
+  color: #fff;
+  font-size: 16px;
+}
+
+.tagify__dropdown {
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.tagify__dropdown__item {
+  color: #fff;
+  padding: 8px 12px;
+}
+
+.tagify__dropdown__item--active {
+  background: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
+}
+
+/* ===== DESKTOP STYLES ===== */
+@media (min-width: 768px) {
+  body {
+    display: flex;
+    align-items: flex-start; /* Start from top on desktop */
+    justify-content: center;
+    padding: 20px;
+  }
+  
   .account-info-container {
-    max-width: 98vw;
-    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    min-height: auto;
+    padding: 0;
   }
-  h2 {
-    font-size: 1.3rem;
+  
+  .account-info-container > div {
+    background: #000;
+    border-radius: 12px;
+    padding: 30px 25px;
+    margin-top: 20px; /* Add top margin instead of centering */
   }
-  .submit-btn {
-    font-size: 1rem;
-    padding: 0.7rem 0; 
+  
+  .submit-btn:hover {
+    background: #e7e9ea;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px !important;
   }
 }

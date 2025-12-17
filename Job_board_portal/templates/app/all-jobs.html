@@ -3,14 +3,20 @@
 {% load custom_filters %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/all-jobs.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 {% endblock head %}
 
 {% block content %}
   {% include "partials/header.html" %}
 <div class="job-search-container {% if profile_type == 'seeker' %}seeker-mode{% endif %}">
+  
+  <!-- Mobile Search Toggle -->
+  <button class="mobile-search-toggle" id="mobileSearchToggle" title="Search & Filter">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+
   <!-- Search Form -->
-  <form method="get" class="search-filters">
+  <form method="get" class="search-filters" id="searchFilters">
     <div class="search-bar">
       <input type="text" name="q" placeholder="Search jobs..." value="{{ search_query }}">
       <button type="submit">
@@ -60,32 +66,6 @@
       </a>
     {% endif %}
   </div>
-
-  <!-- Recommended Jobs (Seeker Only) -->
-  {% if profile_type == 'seeker' and recommended_jobs %}
-  <div class="recommended-section">
-    <h3><i class="fas fa-lightbulb"></i> Recommended For You</h3>
-    <div class="recommended-jobs">
-      {% for job in recommended_jobs %}
-      <div class="recommended-job">
-        <div class="recommended-job-content">
-          <h4>{{ job.title }}</h4>
-          <div class="recommended-meta">
-            <span>{{ job.employer.company_name }}</span>
-            <span>{{ job.location }}</span>
-            {% if job.match_score %}
-            <span class="match-score">{{ job.match_score }}% match</span>
-            {% endif %}
-          </div>
-        </div>
-        <a href="{% url 'jobs:view_job_detail' job.id %}" class="view-btn">
-          View <i class="fas fa-chevron-right"></i>
-        </a>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
 
   <!-- Jobs List -->
   <div class="jobs-list">
@@ -220,11 +200,92 @@
   {% endif %}
 </div>
 
-<style>
- 
-</style>
+  <!-- Recommended Jobs (Seeker Only) -->
+  {% if profile_type == 'seeker' and recommended_jobs %}
+  <div class="recommended-section">
+    <h3><i class="fas fa-lightbulb"></i> Recommended For You</h3>
+    <div class="recommended-jobs">
+      {% for job in recommended_jobs %}
+      <div class="recommended-job">
+        <div class="recommended-job-content">
+          <h4>{{ job.title }}</h4>
+          <div class="recommended-meta">
+            <span>{{ job.employer.company_name }}</span>
+            <span>{{ job.location }}</span>
+            {% if job.match_score %}
+            <span class="match-score">{{ job.match_score }}% match</span>
+            {% endif %}
+          </div>
+        </div>
+        <a href="{% url 'jobs:view_job_detail' job.id %}" class="view-btn">
+          View <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const searchFilters = document.getElementById('searchFilters');
+    
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+    
+    function toggleSearch() {
+        if (!isMobile()) return;
+        
+        searchFilters.classList.toggle('active');
+        mobileSearchToggle.classList.toggle('active');
+        
+        // Update icon based on state
+        const icon = mobileSearchToggle.querySelector('i');
+        if (searchFilters.classList.contains('active')) {
+            icon.className = 'fa-solid fa-times';
+            mobileSearchToggle.setAttribute('title', 'Close Search');
+            // Scroll to search filters when opened
+            searchFilters.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            icon.className = 'fa-solid fa-magnifying-glass';
+            mobileSearchToggle.setAttribute('title', 'Search & Filter');
+        }
+    }
+    
+    // Toggle search on button click
+    mobileSearchToggle.addEventListener('click', toggleSearch);
+    
+    // Close search when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        if (!isMobile()) return;
+        
+        if (searchFilters.classList.contains('active') &&
+            !searchFilters.contains(event.target) &&
+            !mobileSearchToggle.contains(event.target)) {
+            toggleSearch();
+        }
+    });
+    
+    // Close search on escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && isMobile() && searchFilters.classList.contains('active')) {
+            toggleSearch();
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (!isMobile()) {
+            // Reset to default state on desktop
+            searchFilters.classList.remove('active');
+            mobileSearchToggle.classList.remove('active');
+            const icon = mobileSearchToggle.querySelector('i');
+            icon.className = 'fa-solid fa-magnifying-glass';
+            mobileSearchToggle.setAttribute('title', 'Search & Filter');
+        }
+    });
+});
+</script>
 {% endblock %}
-
-
-
-

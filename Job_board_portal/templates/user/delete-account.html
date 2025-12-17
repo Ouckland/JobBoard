@@ -8,44 +8,46 @@
 {% block content %}
 {% include "partials/header.html" %}
 <div class="delete-account-container">
-    <div class="warning-header">
-        <svg class="warning-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 9V11M12 15H12.01M10 3L8 21M16 3L14 21M3 10H21M3 14H21" 
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <h2>Confirm Account Deletion</h2>
-    </div>
-    
-    <p class="warning-text">This action cannot be undone. All your data will be permanently removed.</p>
-    
-    <form action="{% url 'users:delete_account' %}" method="POST" class="delete-account-form">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="confirm-delete">
-                Type <strong>"DELETE"</strong> to confirm:
-            </label>
-            <input type="text" id="confirm-delete" name="confirm_text" 
-                   placeholder="Type DELETE here" required
-                   pattern="DELETE" title="Please type DELETE to confirm">
+    <div>
+        <div class="warning-header">
+            <svg class="warning-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 9V11M12 15H12.01M10 3L8 21M16 3L14 21M3 10H21M3 14H21" 
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h2>Confirm Account Deletion</h2>
         </div>
         
-        <div class="button-group">
-            <button type="submit" class="delete-btn">
-                <svg class="trash-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" 
-                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Permanently Delete Account
-            </button>
+        <p class="warning-text">This action cannot be undone. All your data will be permanently removed.</p>
+        
+        <form action="{% url 'users:delete_account' %}" method="POST" class="delete-account-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="confirm-delete">
+                    Type <strong>"DELETE"</strong> to confirm:
+                </label>
+                <input type="text" id="confirm-delete" name="confirm_text" 
+                       placeholder="Type DELETE here" required
+                       pattern="DELETE" title="Please type DELETE to confirm">
+            </div>
             
-            <a href="{% url 'users:account_settings' %}" class="cancel-btn">
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 12H5M12 19L5 12L12 5" 
-                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                No, Take Me Back
-            </a>
-        </div>
-    </form>
+            <div class="button-group">
+                <button type="submit" class="delete-btn">
+                    <svg class="trash-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" 
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Permanently Delete Account
+                </button>
+                
+                <a href="{% url 'users:account_settings' %}" class="cancel-btn">
+                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M12 19L5 12L12 5" 
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    No, Take Me Back
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock content %}

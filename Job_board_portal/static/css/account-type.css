@@ -1,37 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+/* Import Facebook-like font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== MOBILE FIRST - SOCIAL MEDIA STYLE ===== */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
 
 body, html {
-  min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: radial-gradient(ellipse at 50% 30%, #181a1f 0%, #0a0a0a 80%, #000 100%);
+  min-height: 100vh;
+  background: #000;
   color: #fff;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Social Media Style Container - FIXED */
 .account-type-container {
-  background: rgba(10, 10, 10, 0.96);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px 0 #000, 0 0 0 1.5px #fff1 inset;
-  padding: 2.5rem 2rem 2rem 2rem;
-  color: #fff;
-  border: 1.5px solid #222;
-  max-width: 420px;
   width: 100%;
-  margin: 10vh auto 0 auto;
-  text-align: center;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  min-height: 100vh;
+  padding: 1rem;
+  display: block;
+  background: #000;
 }
 
-h2 {
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 12px #000a;
+.account-type-container > div {
+  width: 100%;
+  max-width: 400px;
+  background: #000;
+  padding: 2rem 1.5rem;
+  margin: 0 auto;
+  margin-top: 1rem;
 }
 
+/* Header */
+.account-type-container h2 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0 0 2rem 0;
+  color: #fff;
+  text-align: left;
+  letter-spacing: -0.5px;
+}
+
+/* Form styling - Clean and simple */
 .account-type-form {
   display: flex;
   flex-direction: column;
@@ -39,162 +59,275 @@ h2 {
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
+  width: 100%;
 }
 
 .form-group label {
-  margin-bottom: 0.4rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: #fff;
+  color: #e7e9ea;
 }
 
+/* Input fields - Social media style */
 .form-group input[type="text"] {
-  padding: 0.7rem 1rem;
-  border-radius: 10px;
-  border: 1.5px solid #222;
-  background: rgba(20, 20, 20, 0.85);
-  color: #fff;
-  font-size: 1rem;
-  outline: none;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 8px #000a inset;
   width: 100%;
-  box-sizing: border-box;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  -webkit-appearance: none;
+  min-height: 52px;
+  transition: border-color 0.2s ease;
 }
 
 .form-group input[type="text"]:focus {
-  border: 1.5px solid #fff;
-  background: #181a1f;
-  box-shadow: 0 0 8px #fff8;
+  border-color: #1d9bf0;
+  background: #000;
 }
 
-/* Modern custom radio styles */
+/* Radio group - Mobile optimized */
 .radio-group {
   display: flex;
-  gap: 1.5rem;
-  margin-top: 0.3rem;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
 }
 
 .radio-label {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  font-size: 1.08rem;
-  background: rgba(30, 30, 30, 0.7);
-  padding: 0.5rem 1.2rem;
-  border-radius: 10px;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #000;
   cursor: pointer;
-  transition: background 0.2s, border 0.2s;
-  border: 1.5px solid transparent;
-  position: relative;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
+
+.radio-label:active {
+  border-color: #1d9bf0;
+  background: rgba(29, 155, 240, 0.05);
+}
+
+/* ...existing code... */
 
 .custom-radio {
+  /* ensure radio + indicator are inline and sized */
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 1.2rem;   /* same as indicator width */
+  height: 1.2rem;  /* same as indicator height */
+  flex: 0 0 auto;
 }
 
-.custom-radio input[type="radio"] {
-  opacity: 0;
-  position: absolute;
-  width: 1.2rem;
-  height: 1.2rem;
-  left: 0;
-  top: 0;
-  margin: 0;
-  cursor: pointer;
-}
+    /* keep the native input in-flow so it sits directly on/near the indicator */
+    .custom-radio input[type="radio"] {
+      opacity: 0;
+      position: static;       /* changed from absolute -> keeps it inline */
+      display: inline-block;
+      width: 1.2rem;
+      height: 1.2rem;
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+      z-index: 2;             /* ensure it receives clicks */
+      box-sizing: border-box;
+    }
 
-.custom-radio-indicator {
-  width: 1.2rem;
-  height: 1.2rem;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  background: #181a1f;
-  display: inline-block;
-  margin-right: 0.4rem;
-  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
-  box-shadow: 0 0 6px #000a;
-  position: relative;
-}
+    /* visual circle indicator — sits immediately to the right/left of input as sibling */
+    .custom-radio-indicator {
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      border: 2px solid #666;
+      background: #000;
+      transition: all 0.18s ease;
+      display: inline-block;
+      box-sizing: border-box;
+      margin-right: 0.4rem;   /* spacing between indicator and label text */
+      flex: 0 0 auto;
+    }
 
-.custom-radio input[type="radio"]:checked + .custom-radio-indicator {
-  background: #fff;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 4px #fff2;
-}
+    /* checked state */
+    .custom-radio input[type="radio"]:checked + .custom-radio-indicator {
+      border-color: #1d9bf0;
+      background: #1d9bf0;
+      box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.12);
+    }
 
-.custom-radio input[type="radio"]:focus + .custom-radio-indicator {
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 2px #fff8;
-}
+    .custom-radio input[type="radio"]:checked + .custom-radio-indicator::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0.4rem;
+      height: 0.4rem;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: #000;
+    }
 
-.radio-label:hover,
-.radio-label:focus-within {
-  background: #181a1f;
-  border: 1.5px solid #fff;
-}
+    /* ensure label keeps everything on one horizontal line */
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
 
- 
+
+/* Error messages */
 .form-error {
-  color: #ff6b6b;
-  background: rgba(30, 0, 0, 0.15);
-  border-left: 3px solid #ff6b6b;
-  padding: 0.4em 0.8em;
-  margin: 0.7em 0 0.3em 0;
-  font-size: 0.97em;
+  color: #f91880;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
   font-weight: 500;
-  border-radius: 6px;
-  letter-spacing: 0.2px;
-  text-align: left;
-  box-shadow: 0 2px 8px #0002;
-  width: 100%;
+  display: block;
+  background: rgba(249, 24, 128, 0.05);
+  border-left: 2px solid #f91880;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
 }
 
+/* Submit button - Social media style */
 .submit-btn {
-  margin-top: 0.5rem;
-  padding: 0.8rem 0;
   width: 100%;
+  padding: 0.9rem;
   background: #fff;
   color: #000;
-  font-weight: bold;
-  border-radius: 12px;
+  font-weight: 600;
+  border-radius: 8px;
   border: none;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-  box-shadow: 0 0 18px #fff2, 0 0 32px #fff1;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+  min-height: 48px;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
 }
 
-.submit-btn:hover {
-  background: #181a1f;
-  color: #fff;
-  box-shadow: 0 0 40px #fff, 0 0 80px #fff;
-  border: 1.5px solid #fff;
+.submit-btn:active {
+  background: #d7dbdc;
+  transform: scale(0.98);
 }
 
-@media (max-width: 600px) {
+/* ===== SMALL PHONE OPTIMIZATIONS ===== */
+@media (max-width: 375px) {
   .account-type-container {
-    max-width: 98vw;
-    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    padding: 0.8rem;
   }
-  h2 {
-    font-size: 1.3rem;
+  
+  .account-type-container > div {
+    padding: 1.5rem 1.2rem;
+    margin-top: 0.5rem;
   }
-  .submit-btn {
-    font-size: 1rem;
-    padding: 0.7rem 0;
+  
+  .account-type-container h2 {
+    font-size: 1.7rem;
+    margin-bottom: 1.5rem;
   }
-  .radio-group {
-    flex-direction: column;
-    gap: 0.7rem;
-    width: 100%;
+  
+  .account-type-form {
+    gap: 1.2rem;
+  }
+  
+  .radio-label {
+    padding: 0.9rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ===== LANDSCAPE OPTIMIZATION ===== */
+@media (max-height: 600px) and (orientation: landscape) {
+  .account-type-container {
+    padding: 0.5rem;
+  }
+  
+  .account-type-container > div {
+    padding: 1rem 1.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .account-type-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .account-type-form {
+    gap: 1rem;
+  }
+  
+  .radio-label {
+    padding: 0.8rem;
+  }
+}
+
+/* ===== TABLET & DESKTOP ===== */
+@media (min-width: 768px) {
+  body, html {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  
+  .account-type-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  
+  .account-type-container > div {
+    background: #000;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    margin: 0;
+  }
+
+   .radio-group {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  .radio-label {
+    flex-direction: row;       /* keep indicator + text inline */
+    justify-content: flex-start;
+    text-align: left;
+    min-height: auto;
+    padding: 1rem;
+    gap: 0.8rem;
+  }
+
+  .submit-btn:hover {
+    background: #e7e9ea;
+  }
+  
+  .radio-label:hover {
+    border-color: #1d9bf0;
+    background: rgba(29, 155, 240, 0.05);
+  }
+  
+  .form-group input[type="text"]:hover {
+    border-color: #1d9bf0;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .account-type-container > div {
+    padding: 2rem 1.5rem;
   }
 }

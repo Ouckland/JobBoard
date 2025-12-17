@@ -4,61 +4,65 @@
     <title>jobsphere/account-info/</title>
 {% endblock title %}
 {% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <link rel="stylesheet" href="{% static 'css/account-info.css' %}">
 {% endblock head %}
 {% block content %}
 <div class="account-info-container">
-    <h2>
-        {% if account_type == 'employer' %}
-            Employer Account Information
-        {% else %}
-            Job Seeker Account Information
-        {% endif %}
-    </h2>
-
-    <form method="POST" action="{% url 'users:account_info' %}" enctype="multipart/form-data" class="account-info-form" autocomplete="off">
-        {% csrf_token %}
-        {% for field in form.visible_fields %}
-            {% if field.name == "skills" %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
-                    <input id="id_skills" name="skills" value="{{ field.value|default_if_none:'' }}" class="form-control">
-                    {% if field.help_text %}
-                        <small class="form-help">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="form-error">{{ field.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            {% elif field.name in "resume profile_picture company_logo registration_document" %}
-                <div class="form-group file-upload-group">
-                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <small class="form-help">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="form-error">{{ field.errors.0 }}</div>
-                    {% endif %}
-                    <div class="file-preview" id="preview_{{ field.name }}"></div>
-                </div>
+    <div>
+        <h2>
+            {% if account_type == 'employer' %}
+                Employer Account Information
             {% else %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <small class="form-help">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="form-error">{{ field.errors.0 }}</div>
-                    {% endif %}
-                </div>
+                Job Seeker Account Information
             {% endif %}
-        {% endfor %}
-        <button type="submit" class="submit-btn">Complete Profile</button>
-    </form>
+        </h2>
+
+        <form method="POST" action="{% url 'users:account_info' %}" enctype="multipart/form-data" class="account-info-form" autocomplete="off">
+            {% csrf_token %}
+            {% for field in form.visible_fields %}
+                {% if field.name == "skills" %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <input id="id_skills" name="skills" value="{{ field.value|default_if_none:'' }}" class="form-control">
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% elif field.name in "resume profile_picture company_logo registration_document" %}
+                    <div class="form-group file-upload-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                        <div class="file-preview" id="preview_{{ field.name }}"></div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button type="submit" class="submit-btn">Complete Profile</button>
+        </form>
+    </div>
 </div>
 <script>
   // Tagify for skills
@@ -69,17 +73,19 @@
       dropdown: { enabled: 0 }
     });
   }
+  
   // Preview for image fields
   function previewImage(input, previewId) {
     if (input.files && input.files[0]) {
       var reader = new FileReader();
       reader.onload = function(e) {
-        document.getElementById(previewId).innerHTML = '<img src="' + e.target.result + '" style="max-width:120px;max-height:120px;border-radius:10px;margin-top:8px;">';
+        document.getElementById(previewId).innerHTML = '<img src="' + e.target.result + '" style="max-width:120px;max-height:120px;border-radius:8px;margin-top:8px;">';
       }
       reader.readAsDataURL(input.files[0]);
     }
   }
-  document.querySelectorAll('.file-input').forEach(function(input){
+  
+  document.querySelectorAll('input[type="file"]').forEach(function(input){
     if(input.accept && input.accept.includes('image')){
       input.addEventListener('change', function(){
         previewImage(this, 'preview_' + this.name);

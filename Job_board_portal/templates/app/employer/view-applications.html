@@ -4,41 +4,101 @@
     <link rel="stylesheet" href="{% static 'css/view-applications.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock head %}
+
 {% block content %}
 {% include "partials/header.html" %}
 
 <section class="applications-section">
-    <h2 class="applications-heading">Applications for {{ job.title }}</h2>
+    <h2 class="applications-heading">
+        Applications for <span class="job-title">{{ job.title }}</span>
+    </h2>
 
+    <!-- Applications Statistics -->
     {% if applications %}
-        {% for app in applications %}
-        <div class="application-card">
-            <div class="profile-image-container">
-                {% if app.applicant.profile_picture %}
-                    <a href="{% url 'users:public_profile' job.employer.user.username %}" class="job-employer-image">
-                        <img src="{{ app.applicant.profile_picture.url }}" alt="Applicant Image">
-                        <div class="circle-effect"></div>
-                    </a>
-                {% else %}
-                <a href='{% url "users:public_profile" job.employer.user.username %}' class='job-employer-image'>
-                    <img src="{% static 'images/default-profile.png' %}" alt="No image found">
-                    <div class="circle-effect"></div>
-                </a>
-                {% endif %}
-            </div>
-            <div class="application-details">
-                <div class="applicant-name">{{ app.applicant.full_name }}</div>
-                <div class="application-date">Applied on: {{ app.application_date|date:"F j, Y" }}</div>
-                <a href="{% url 'jobs:view_application_detail' app.id %}" class="view-details-btn">
-                    <i class="fas fa-eye"></i> View Details
-                </a>
-            </div>
+    <div class="applications-stats">
+        <div class="stat-card">
+            <span class="stat-number">{{ total_applications }}</span>
+            <span class="stat-label">Total Applications</span>
         </div>
-        {% endfor %}
-    {% else %}
-        <div class="no-applications">
-            <i class="far fa-folder-open"></i> No applications yet.
+        <div class="stat-card">
+            <span class="stat-number">{{ pending_count }}</span>
+            <span class="stat-label">Pending Review</span>
         </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ shortlisted_count }}</span>
+            <span class="stat-label">Shortlisted</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ interview_count }}</span>
+            <span class="stat-label">Interview Stage</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ offer_count }}</span>
+            <span class="stat-label">Offer Made</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ hired_count }}</span>
+            <span class="stat-label">Hired</span>
+        </div>
+    </div>
     {% endif %}
+
+    <!-- Applications List -->
+    <div class="applications-grid">
+        {% if applications %}
+            {% for app in applications %}
+            <div class="application-card status-{{ app.status }}">
+                <div class="profile-image-container">
+                    {% if app.applicant.profile_picture %}
+                        <a href="{% url 'users:public_profile' app.applicant.user.username %}" class="job-employer-image">
+                            <img src="{{ app.applicant.profile_picture.url }}" alt="{{ app.applicant.full_name }}'s profile picture">
+                        </a>
+                    {% else %}
+                        <a href="{% url 'users:public_profile' app.applicant.user.username %}" class="job-employer-image">
+                            <img src="{% static 'images/default-profile.png' %}" alt="Default profile picture">
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <div class="application-details">
+                    <h3 class="applicant-name">{{ app.applicant.full_name|default:app.applicant.user.username }}</h3>
+                    <div class="application-date">
+                        Applied on {{ app.application_date|date:"F j, Y" }}
+                    </div>
+                    <span class="application-status status-{{ app.status }}">
+                        <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                        {{ app.get_status_display }}
+                    </span>
+                    
+                    <!-- Show interview date if scheduled -->
+                    {% if app.interview_date %}
+                    <div class="interview-info">
+                        <i class="fas fa-calendar-alt"></i>
+                        Interview: {{ app.interview_date|date:"M j, Y g:i A" }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="application-actions">
+                    <a href="{% url 'jobs:review_application' app.id %}" class="view-details-btn">
+                        Review
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-applications">
+                <i class="far fa-folder-open"></i>
+                <p>No applications received yet for this position.</p>
+                <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Share this job to attract more candidates.
+                </p>
+                <a href="{% url 'jobs:job_detail' job.slug %}" class="browse-jobs-btn">
+                    <i class="fas fa-share"></i>
+                    Share Job Posting
+                </a>
+            </div>
+        {% endif %}
+    </div>
 </section>
 {% endblock content %}

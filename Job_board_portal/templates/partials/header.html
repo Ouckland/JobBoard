@@ -1,5 +1,6 @@
 {% load static %}
 {% block head %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{% static 'css/header.css' %}">
 {% endblock head %}
 
@@ -9,49 +10,198 @@
       <a href="{% url 'jobs:dashboard' %}" class="navbar-logo">Jobsphere</a>
     </div>
 
-    <button class="hamburger" id="hamburger-toggle" aria-label="Toggle navigation">
-      <img src="{% static 'images/menu.png' %}" alt="">
+    <!-- Modern Hamburger Button -->
+    <button class="hamburger" id="hamburger-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <img src="{% static 'images/menu.png' %}" alt="Menu">
     </button>
 
-    <nav class="navbar-links" id="navbar-menu">
+    <!-- Navigation Menu -->
+    <nav class="navbar-links" id="navbar-menu" aria-hidden="true">
       {% if request.user.is_authenticated %}
-        <a href="{% url 'jobs:dashboard' %}">Dashboard</a>
-        <a href="{% url 'users:view_profile' %}">Profile</a>
-        {% if notifications %}
-          <a href="{% url 'jobs:notifications' %}">
-            Notifications <span class="notif-badge">{{ unread_count }}</span>
-          </a>
-        {% else %}
-          <a href="{% url 'jobs:notifications' %}">
-            Notifications
-            {% if unread_count > 0 %}
-              <span id="unread-count" class="notif-badge">{{ unread_count }}</span>
-            {% else %}
-              <span id="unread-count" class="notif-badge" style="display: none;">0</span>
-            {% endif %}
-          </a>
-
-        {% endif %}
+        <a href="{% url 'jobs:dashboard' %}" class="nav-link">
+          Dashboard
+        </a>
+        <a href="{% url 'users:view_profile' %}" class="nav-link">
+          Profile
+        </a>
+        <a href="{% url 'jobs:notifications' %}" class="nav-link">
+          Notifications
+          {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+          {% else %}
+            <span class="notif-badge" style="display: none;">0</span>
+          {% endif %}
+        </a>
         <form action="{% url 'users:logout' %}" method="POST" class="navbar-logout-form">
           {% csrf_token %}
           <button type="submit" class="logout-btn">Logout</button>
         </form>
       {% else %}
-        <a href="#">Contact</a>
-        <a href="{% url 'users:login' %}">Login</a>
+        <a href="#" class="nav-link">Contact</a>
+        <a href="{% url 'users:login' %}" class="nav-link">Login</a>
       {% endif %}
     </nav>
   </header>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleBtn = document.getElementById('hamburger-toggle');
-      const navMenu = document.getElementById('navbar-menu');
+document.addEventListener('DOMContentLoaded', () => {
+  const navbar = document.querySelector('.main-navbar');
+  const toggleBtn = document.getElementById('hamburger-toggle');
+  const navMenu = document.getElementById('navbar-menu');
+  const body = document.body;
 
-      toggleBtn.addEventListener('click', () => {
-        toggleBtn.classList.toggle('active');
-        navMenu.classList.toggle('open');
-      });
+  // Auto-hide settings
+  let inactivityTimer;
+  const HIDE_DELAY = 60000; // 1 minute in milliseconds
+  const MOBILE_BREAKPOINT = 768;
+
+  // Initialize header state
+  function initHeader() {
+    showHeader();
+    startInactivityTimer();
+    setupEventListeners();
+  }
+
+  // Show header
+  function showHeader() {
+    navbar.classList.remove('hidden');
+    navbar.classList.add('visible');
+    body.classList.remove('header-hidden');
+    body.classList.add('header-visible');
+    resetInactivityTimer();
+  }
+
+  // Hide header
+  function hideHeader() {
+    // Don't hide on mobile or when menu is open
+    if (window.innerWidth < MOBILE_BREAKPOINT || navMenu.classList.contains('open')) {
+      return;
+    }
+    
+    navbar.classList.remove('visible');
+    navbar.classList.add('hidden');
+    body.classList.remove('header-visible');
+    body.classList.add('header-hidden');
+  }
+
+  // Reset inactivity timer
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(hideHeader, HIDE_DELAY);
+  }
+
+  // Start inactivity monitoring
+  function startInactivityTimer() {
+    resetInactivityTimer();
+  }
+
+  // Event listeners for user activity
+  function setupEventListeners() {
+    // User interaction events
+    const activityEvents = [
+      'mousemove', 'mousedown', 'click', 'scroll',
+      'keypress', 'touchstart', 'touchmove'
+    ];
+
+    activityEvents.forEach(event => {
+      document.addEventListener(event, () => {
+        showHeader();
+        resetInactivityTimer();
+      }, { passive: true });
     });
-  </script>
+
+    // Mobile menu toggle
+    toggleBtn.addEventListener('click', handleMenuToggle);
+    
+    // Close menu when clicking on a link (mobile)
+    navMenu.addEventListener('click', handleMenuLinkClick);
+    
+    // Close menu when clicking outside (mobile)
+    document.addEventListener('click', handleOutsideClick);
+    
+    // Close menu on escape key
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    // Handle window resize
+    window.addEventListener('resize', handleResize);
+    
+    // Show header when hovering near top of screen
+    document.addEventListener('mousemove', (e) => {
+      if (e.clientY < 50 && navbar.classList.contains('hidden')) {
+        showHeader();
+      }
+    });
+  }
+
+  // Mobile menu handlers
+  function handleMenuToggle() {
+    const isOpen = toggleBtn.classList.toggle('active');
+    navMenu.classList.toggle('open');
+    
+    // Update ARIA attributes for accessibility
+    toggleBtn.setAttribute('aria-expanded', isOpen);
+    navMenu.setAttribute('aria-hidden', !isOpen);
+    
+    // Prevent body scroll when menu is open on mobile
+    if (window.innerWidth < MOBILE_BREAKPOINT) {
+      body.style.overflow = isOpen ? 'hidden' : '';
+    }
+    
+    // Reset timer when menu is interacted with
+    resetInactivityTimer();
+  }
+
+  function handleMenuLinkClick(e) {
+    if (e.target.tagName === 'A' && window.innerWidth < MOBILE_BREAKPOINT) {
+      closeMobileMenu();
+      resetInactivityTimer();
+    }
+  }
+
+  function handleOutsideClick(e) {
+    if (window.innerWidth < MOBILE_BREAKPOINT && 
+        navMenu.classList.contains('open') && 
+        !navMenu.contains(e.target) && 
+        !toggleBtn.contains(e.target)) {
+      closeMobileMenu();
+      resetInactivityTimer();
+    }
+  }
+
+  function handleEscapeKey(e) {
+    if (e.key === 'Escape' && navMenu.classList.contains('open')) {
+      closeMobileMenu();
+      resetInactivityTimer();
+    }
+  }
+
+  function handleResize() {
+    // Close mobile menu when switching to desktop
+    if (window.innerWidth >= MOBILE_BREAKPOINT && navMenu.classList.contains('open')) {
+      closeMobileMenu();
+    }
+    
+    // Reset timer on resize
+    resetInactivityTimer();
+  }
+
+  function closeMobileMenu() {
+    toggleBtn.classList.remove('active');
+    navMenu.classList.remove('open');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    navMenu.setAttribute('aria-hidden', 'true');
+    body.style.overflow = '';
+  }
+
+  // Initialize the dynamic header
+  initHeader();
+
+  // Export functions for potential external use
+  window.headerController = {
+    showHeader,
+    hideHeader,
+    resetInactivityTimer
+  };
+});
+</script>
 {% endblock header %}

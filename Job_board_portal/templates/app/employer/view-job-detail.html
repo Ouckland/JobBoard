@@ -12,56 +12,97 @@
     <h2>Job Details</h2>
 
     <div class="card">
-
         <!-- Previous Button -->
-        <button class="carousel-btn prev">
-            <img src="{% static 'images/arrow-back.png' %}" alt="Previous">
+        <button class="carousel-btn prev" aria-label="Previous slide">
+            <img src="{% static 'images/arrow-back.png' %}" alt="Previous" width="20" height="20">
         </button>
 
         <!-- Carousel Container -->
-        <div class="job-detail-carousel">
-            <div class="job-detail-slide active">
-                <p><strong>Title:</strong> {{ job.title }}</p>
-                <p><strong>Employer:</strong> {{ job.employer }}</p>
-                <p><strong>Job Type:</strong> {{ job.get_job_type_display }}</p>
-                <p><strong>Location:</strong> {{ job.location }}</p>
-                <p><strong>Salary (₦):</strong> {{ job.salary }}</p>
-                <p><strong>Experience Required:</strong> {{ job.experience_required }}</p>
+        <div class="job-detail-carousel" aria-live="polite">
+            <div class="job-detail-slide active" role="tabpanel" aria-label="Slide 1 of 2">
+                <p>
+                    <strong>Title:</strong>
+                    <span>{{ job.title }}</span>
+                </p>
+                <p>
+                    <strong>Employer:</strong>
+                    <span>{{ job.employer }}</span>
+                </p>
+                <p>
+                    <strong>Job Type:</strong>
+                    <span>{{ job.get_job_type_display }}</span>
+                </p>
+                <p>
+                    <strong>Location:</strong>
+                    <span>{{ job.location }}</span>
+                </p>
+                <p>
+                    <strong>Salary (₦):</strong>
+                    <span>{{ job.salary }}</span>
+                </p>
+                <p>
+                    <strong>Experience:</strong>
+                    <span>{{ job.experience_required }}</span>
+                </p>
             </div>
 
-            <div class="job-detail-slide">
-                <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
-                <p><strong>Posted Date:</strong> {{ job.posted_date|date:"F j, Y" }}</p>
-                <p><strong>Deadline:</strong> {{ job.deadline|date:"F j, Y" }}</p>
-                <p><strong>Category:</strong> {{ job.job_category }}</p>
-                <p><strong>Status:</strong> {{ job.job_status }}</p>
-                <p><strong>Skills Required:</strong> {{ job.skills_required }}</p>
+            <div class="job-detail-slide" role="tabpanel" aria-label="Slide 2 of 2">
+                <p>
+                    <strong>Qualifications:</strong>
+                    <span>{{ job.qualifications }}</span>
+                </p>
+                <p>
+                    <strong>Posted Date:</strong>
+                    <span>{{ job.posted_date|date:"F j, Y" }}</span>
+                </p>
+                <p>
+                    <strong>Deadline:</strong>
+                    <span>{{ job.deadline|date:"F j, Y" }}</span>
+                </p>
+                <p>
+                    <strong>Category:</strong>
+                    <span>{{ job.job_category }}</span>
+                </p>
+                <p>
+                    <strong>Status:</strong>
+                    <span>{{ job.job_status }}</span>
+                </p>
+                <p>
+                    <strong>Skills Required:</strong>
+                    <span>{{ job.skills_required }}</span>
+                </p>
             </div>
         </div>
 
         <!-- Next Button -->
-        <button class="carousel-btn next">
-            <img src="{% static 'images/arrow-forward.png' %}" alt="Next">
+        <button class="carousel-btn next" aria-label="Next slide">
+            <img src="{% static 'images/arrow-forward.png' %}" alt="Next" width="20" height="20">
         </button>
     </div>
 
     <!-- Slide Indicator -->
     <div class="slide-indicator">
-        <span id="slide-indicator-text">1 / 2</span>
+        <span id="slide-indicator-text" aria-live="polite">1 / 2</span>
     </div>
 
     <!-- Action Buttons -->
     <div class="mt-4">
         {% if request.user.employerprofile %}
-            <a href="{% url 'jobs:update_job_details' job.id %}" class="btn btn-primary">Update Job</a>
-            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-danger">Delete Job</a>
+            <a href="{% url 'jobs:update_job_details' job.id %}" class="btn btn-primary">
+                Update Job
+            </a>
+            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-danger">
+                Delete Job
+            </a>
         {% else %}
-            <a href="{% url 'jobs:apply_for_job' job.id %}" class="btn btn-success">Apply for Job</a>
+            <a href="{% url 'jobs:apply_for_job' job.id %}" class="btn btn-success">
+                Apply for Job
+            </a>
         {% endif %}
     </div>
 </section>
 
-<!-- Carousel Script -->
+<!-- Enhanced Carousel Script -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const slides = document.querySelectorAll(".job-detail-slide");
@@ -72,30 +113,81 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentSlide = 0;
 
     function updateSlides(index) {
+        // Update ARIA attributes for accessibility
         slides.forEach((slide, i) => {
             slide.classList.remove("active", "slide-in-left", "slide-in-right");
+            slide.setAttribute("aria-hidden", "true");
+            
             if (i === index) {
                 const direction = index > currentSlide ? "slide-in-right" : "slide-in-left";
                 slide.classList.add("active", direction);
+                slide.setAttribute("aria-hidden", "false");
             }
         });
 
+        // Update indicator
         indicator.textContent = `${index + 1} / ${slides.length}`;
         currentSlide = index;
+        
+        // Update button states
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === slides.length - 1;
     }
 
-    if (prevBtn && nextBtn && slides.length > 0) {
+    function navigateSlides(direction) {
+        let newIndex;
+        if (direction === 'next') {
+            newIndex = (currentSlide + 1) % slides.length;
+        } else {
+            newIndex = (currentSlide - 1 + slides.length) % slides.length;
+        }
+        updateSlides(newIndex);
+    }
+
+    // Initialize carousel
+    if (slides.length > 0) {
         updateSlides(currentSlide);
 
-        prevBtn.addEventListener("click", () => {
-            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-            updateSlides(currentSlide);
+        // Button event listeners
+        prevBtn.addEventListener("click", () => navigateSlides('prev'));
+        nextBtn.addEventListener("click", () => navigateSlides('next'));
+
+        // Keyboard navigation
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") {
+                navigateSlides('prev');
+            } else if (e.key === "ArrowRight") {
+                navigateSlides('next');
+            }
         });
 
-        nextBtn.addEventListener("click", () => {
-            currentSlide = (currentSlide + 1) % slides.length;
-            updateSlides(currentSlide);
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        const carousel = document.querySelector('.job-detail-carousel');
+        
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
         });
+
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    navigateSlides('next'); // Swipe left
+                } else {
+                    navigateSlides('prev'); // Swipe right
+                }
+            }
+        }
     }
 });
 </script>

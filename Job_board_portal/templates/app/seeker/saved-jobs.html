@@ -3,14 +3,21 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/saved-jobs.css' %}">
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
 {% endblock head %}
 
 {% block content %}
 {% include "partials/header.html" %}
 
 <main class="saved-jobs-container">
+    <!-- Mobile Search Toggle -->
+    <button class="mobile-search-toggle" id="mobileSearchToggle" title="Search & Filter">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+
     <!-- Glassmorphic Filter Card -->
-    <div class="glass-card filter-section">
+    <div class="glass-card filter-section" id="filterSection">
         <h2 class="section-title"><i class="fas fa-filter"></i> Filter Saved Jobs</h2>
         <form method="get" class="filter-form">
             <div class="form-group">
@@ -63,6 +70,7 @@
                 <span class="badge">{{ saved_jobs.paginator.count }}</span>
             </h2>
             
+            <!-- Desktop Sort Options -->
             <div class="sort-options">
                 <span>Sort by:</span>
                 <a href="?sort=-timestamp{% if search_query %}&search={{ search_query }}{% endif %}" 
@@ -193,4 +201,66 @@
         {% endif %}
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const filterSection = document.getElementById('filterSection');
+    
+    // Only apply mobile behavior on small screens
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+    
+    function toggleSearch() {
+        if (!isMobile()) return;
+        
+        filterSection.classList.toggle('active');
+        mobileSearchToggle.classList.toggle('active');
+        
+        // Update icon based on state
+        const icon = mobileSearchToggle.querySelector('i');
+        if (filterSection.classList.contains('active')) {
+            icon.className = 'fa-solid fa-times';
+            mobileSearchToggle.setAttribute('title', 'Close Search');
+        } else {
+            icon.className = 'fa-solid fa-magnifying-glass';
+            mobileSearchToggle.setAttribute('title', 'Search & Filter');
+        }
+    }
+    
+    // Toggle search on button click
+    mobileSearchToggle.addEventListener('click', toggleSearch);
+    
+    // Close search when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        if (!isMobile()) return;
+        
+        if (filterSection.classList.contains('active') &&
+            !filterSection.contains(event.target) &&
+            !mobileSearchToggle.contains(event.target)) {
+            toggleSearch();
+        }
+    });
+    
+    // Close search on escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && isMobile() && filterSection.classList.contains('active')) {
+            toggleSearch();
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (!isMobile()) {
+            // Reset to default state on desktop
+            filterSection.classList.remove('active');
+            mobileSearchToggle.classList.remove('active');
+            const icon = mobileSearchToggle.querySelector('i');
+            icon.className = 'fa-solid fa-magnifying-glass';
+            mobileSearchToggle.setAttribute('title', 'Search & Filter');
+        }
+    });
+});
+</script>
 {% endblock content %}

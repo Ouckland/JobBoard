@@ -1,0 +1,579 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/acceptance-email.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<div class="email-composer">
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <h2>Send Acceptance Email</h2>
+            <p>Compose and send an acceptance email to {{ application.applicant.full_name|default:application.applicant.user.username }}</p>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        
+        <!-- Email Form -->
+        <form method="post" action="{% url 'jobs:compose_acceptance_email' application.id %}" class="email-form">
+            {% csrf_token %}
+            
+            <!-- Recipient Email -->
+            <div class="form-section">
+                <div class="field-header">
+                    <i class="fas fa-envelope field-icon"></i>
+                    <label for="recipient" class="form-label">Recipient Email</label>
+                </div>
+                <input type="email" class="form-control" id="recipient" name="recipient" 
+                       value="{{ application.applicant.user.email }}" readonly required>
+            </div>
+            
+            <!-- Email Subject -->
+            <div class="form-section">
+                <div class="field-header">
+                    <i class="fas fa-tag field-icon"></i>
+                    <label for="subject" class="form-label">Email Subject</label>
+                </div>
+                <input type="text" class="form-control" id="subject" name="subject" 
+                      value="{{ subject }}" required 
+                      placeholder="Enter email subject...">
+                <div class="help-text">Make it clear and welcoming</div>
+            </div>
+
+            <!-- Email Message -->
+            <div class="form-section">
+                <div class="field-header">
+                    <i class="fas fa-edit field-icon"></i>
+                    <label for="message" class="form-label">Email Message</label>
+                </div>
+                <textarea class="form-control" id="message" name="message" rows="12" required 
+                          placeholder="Compose your acceptance message here...">{{ message }}</textarea>
+                <div class="help-text">
+                    Use the template variables above to personalize the message. They will be automatically replaced with actual values.
+                </div>
+            </div>
+            <!-- Preview Toggle -->
+            <button type="button" class="preview-toggle" id="previewToggle">
+                <i class="fas fa-eye"></i>
+                Preview Email
+            </button>
+
+            <!-- Email Preview -->
+            <div class="email-preview" id="emailPreview">
+                <div class="preview-header">
+                    <h4 class="preview-subject" id="previewSubject"></h4>
+                    <p class="preview-to" id="previewTo"></p>
+                </div>
+                <div class="preview-body" id="previewBody"></div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button type="submit" class="btn-send">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Acceptance Email
+                </button>
+                
+                <a href="{% url 'jobs:review_application' application.id %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Application Review
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subjectInput = document.getElementById('subject');
+    const messageInput = document.getElementById('message');
+    const recipientInput = document.getElementById('recipient');
+    const previewToggle = document.getElementById('previewToggle');
+    const emailPreview = document.getElementById('emailPreview');
+    const previewSubject = document.getElementById('previewSubject');
+    const previewTo = document.getElementById('previewTo');
+    const previewBody = document.getElementById('previewBody');
+
+    // Template variables with actual values
+    const templateData = {
+        'applicant_name': '{{ application.applicant.full_name|default:application.applicant.user.username|escapejs }}',
+        'job_title': '{{ application.job.title|escapejs }}',
+        'company_name': '{{ application.job.employer.company_name|escapejs }}',
+        'application_date': '{{ application.application_date|date:"F j, Y"|escapejs }}'
+    };
+
+    // Preview functionality
+    function updatePreview() {
+        let subject = subjectInput.value;
+        let message = messageInput.value;
+
+        // Replace template variables in preview
+        Object.keys(templateData).forEach(key => {
+            const regex = new RegExp('{' + key + '}', 'gi');
+            subject = subject.replace(regex, templateData[key]);
+            message = message.replace(regex, templateData[key]);
+        });
+
+        previewSubject.textContent = subject;
+        previewTo.textContent = `To: ${recipientInput.value}`;
+        previewBody.textContent = message;
+    }
+
+    // Toggle preview
+    previewToggle.addEventListener('click', function() {
+        updatePreview();
+        emailPreview.classList.toggle('show');
+        this.innerHTML = emailPreview.classList.contains('show') 
+            ? '<i class="fas fa-eye-slash"></i> Hide Preview' 
+            : '<i class="fas fa-eye"></i> Preview Email';
+    });
+
+    // Auto-update preview when typing
+    let previewTimeout;
+    [subjectInput, messageInput].forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(previewTimeout);
+            if (emailPreview.classList.contains('show')) {
+                previewTimeout = setTimeout(updatePreview, 500);
+            }
+        });
+    });
+
+    // Form submission confirmation
+    const form = document.querySelector('.email-form');
+    form.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to send this acceptance email? This action cannot be undone.')) {
+            e.preventDefault();
+        }
+    });
+
+    // Auto-focus on subject field
+    subjectInput.focus();
+
+    // Add character counter for message
+    function updateCharacterCount() {
+        const charCount = messageInput.value.length;
+        const counter = document.getElementById('charCount') || (function() {
+            const counter = document.createElement('div');
+            counter.id = 'charCount';
+            counter.className = 'help-text';
+            messageInput.parentNode.appendChild(counter);
+            return counter;
+        })();
+        
+        counter.textContent = `${charCount} characters`;
+        
+        if (charCount > 5000) {
+            counter.style.color = '#ef4444';
+        } else if (charCount > 3000) {
+            counter.style.color = '#f59e0b';
+        } else {
+            counter.style.color = '#71767b';
+        }
+    }
+
+    messageInput.addEventListener('input', updateCharacterCount);
+    updateCharacterCount(); // Initial count
+});
+</script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== BASE STYLES - DARK THEME ===== */
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== EMAIL COMPOSER ===== */
+.email-composer {
+  max-width: 700px;
+  margin: 80px auto 2rem;
+  padding: 0 1rem;
+}
+
+.email-container {
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ===== EMAIL HEADER ===== */
+.email-header {
+  padding: 2rem 1.5rem;
+  background: #000;
+  border-bottom: 1px solid #333;
+  text-align: center;
+}
+
+.email-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.5px;
+}
+
+.email-header p {
+  font-size: 1rem;
+  color: #71767b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ===== EMAIL FORM ===== */
+.email-form {
+  padding: 1.5rem;
+}
+
+/* ===== FORM SECTIONS ===== */
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.field-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.field-icon {
+  color: #1d9bf0;
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ===== FORM CONTROLS ===== */
+.form-control {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #1d9bf0;
+  background: rgba(29, 155, 240, 0.05);
+}
+
+.form-control[readonly] {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: #333;
+  color: #71767b;
+  cursor: not-allowed;
+}
+
+/* Textarea specific styles */
+textarea.form-control {
+  resize: vertical;
+  min-height: 280px;
+  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== HELP TEXT ===== */
+.help-text {
+  font-size: 0.875rem;
+  color: #71767b;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+/* ===== TEMPLATE VARIABLES ===== */
+.template-variables {
+  background: rgba(29, 155, 240, 0.1);
+  border: 1px solid rgba(29, 155, 240, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.template-variables h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1d9bf0;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.variables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.variable-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.variable-tag {
+  background: #1d9bf0;
+  color: #000;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.variable-desc {
+  color: #e7e9ea;
+  font-size: 0.75rem;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-send {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+}
+
+.btn-send:hover {
+  background: #0da271;
+  transform: translateY(-1px);
+}
+
+.btn-send:active {
+  transform: translateY(0);
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #e7e9ea;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.btn-back:hover {
+  border-color: #444;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+/* ===== ALERT MESSAGES ===== */
+.alert {
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid transparent;
+}
+
+.alert-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border-left-color: #10b981;
+}
+
+.alert-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-left-color: #ef4444;
+}
+
+.alert-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-left-color: #3b82f6;
+}
+
+/* ===== PREVIEW SECTION ===== */
+.preview-toggle {
+  background: none;
+  border: 1px solid #333;
+  color: #71767b;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.preview-toggle:hover {
+  border-color: #444;
+  color: #e7e9ea;
+}
+
+.email-preview {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  display: none;
+}
+
+.email-preview.show {
+  display: block;
+}
+
+.preview-header {
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.preview-subject {
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+}
+
+.preview-to {
+  font-size: 0.875rem;
+  color: #71767b;
+  margin: 0;
+}
+
+.preview-body {
+  line-height: 1.6;
+  color: #e7e9ea;
+  white-space: pre-line;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .email-composer {
+    margin: 70px auto 1rem;
+    padding: 0 0.75rem;
+  }
+
+  .email-header {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .email-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .email-form {
+    padding: 1.25rem;
+  }
+
+  .variables-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    margin-top: 1.5rem;
+  }
+
+  .btn-send,
+  .btn-back {
+    padding: 0.875rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .email-composer {
+    margin: 60px auto 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .email-header {
+    padding: 1.25rem 1rem;
+  }
+
+  .email-header h2 {
+    font-size: 1.125rem;
+  }
+
+  .email-form {
+    padding: 1rem;
+  }
+
+  .form-section {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .form-control,
+  .btn-send,
+  .btn-back,
+  .preview-toggle {
+    transition: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.form-control:focus,
+.btn-send:focus,
+.btn-back:focus,
+.preview-toggle:focus {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 2px;
+}
+
+</style>
+{% endblock %}

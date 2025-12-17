@@ -1,108 +1,212 @@
-{% extends "partials/base.html" %}
+{% extends 'partials/base.html' %}
 {% load static %}
 {% block title %}
-    <title>jobsphere/account-info/</title>
+    <title>jobsphere/update-account-info/</title>
 {% endblock title %}
 {% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <link rel="stylesheet" href="{% static 'css/account-info.css' %}">
 {% endblock head %}
-{% block content %}
-<div class="account-info-container">
-    <h2>
-        {% if account_type == 'employer' %}
-            Employer Account Information
-        {% else %}
-            Job Seeker Account Information
-        {% endif %}
-    </h2>
 
-    <form method="POST" action="{% url 'users:update_account_info' %}" enctype="multipart/form-data" class="account-info-form" autocomplete="off">
-        {% csrf_token %}
-        {% for field in form.visible_fields %}
-            {% if field.name == "skills" %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
-                    <input id="id_skills" name="skills" value="{{ field.value|default_if_none:'' }}" class="form-control">
-                    {% if field.help_text %}
-                        <small class="form-help">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="form-error">{{ field.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            {% elif field.name in "resume profile_picture company_logo registration_document" %}
-                <div class="form-group file-upload-group">
-                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <small class="form-help">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="form-error">{{ field.errors.0 }}</div>
-                    {% endif %}
-                    <div class="file-preview" id="preview_{{ field.name }}"></div>
-                </div>
+{% block content %}
+    {% include "partials/header.html" %}
+<div class="account-info-container">
+    <div>
+        <h2>
+            {% if account_type == 'employer' %}
+                Update Employer Account Information
             {% else %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <small class="form-help">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="form-error">{{ field.errors.0 }}</div>
-                    {% endif %}
-                </div>
+                Update Job Seeker Account Information
             {% endif %}
-        {% endfor %}
-        <button type="submit" class="submit-btn">Complete Profile</button>
-    </form>
+        </h2>
+
+        <form method="POST" action="{% url 'users:update_account_info' %}" enctype="multipart/form-data" class="account-info-form" autocomplete="off">
+            {% csrf_token %}
+            
+            {% for field in form.visible_fields %}
+                {% if field.name == "country" %}
+                    <div class="form-group">
+                        <label for="id_country">Country</label>
+                        <select id="id_country" name="country" class="form-control">
+                            <option value="">Select Country</option>
+                            {% for country in countries %}
+                                <option value="{{ country.id }}" data-phone-code="{{ country.phone_code }}" {% if field.value|stringformat:"s" == country.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ country.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% elif field.name == "state" %}
+                    <div class="form-group">
+                        <label for="id_state">State</label>
+                        <select id="id_state" name="state" class="form-control">
+                            <option value="">Select State</option>
+                            {% for state in states %}
+                                <option value="{{ state.id }}" {% if field.value|stringformat:"s" == state.id|stringformat:"s" %}selected{% endif %}>{{ state.name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% elif field.name == "phone_number" or field.name == "contact_number" %}
+                    <div class="form-group">
+                        <label for="id_{{ field.name }}">
+                            {% if field.name == "phone_number" %}Phone Number{% else %}Contact Number{% endif %}
+                        </label>
+                        <div class="phone-number-group">
+                            <select id="id_{{ field.name }}_code" name="{{ field.name }}_code" class="form-control phone-code-select">
+                                <option value="">Code</option>
+                                {% for country in countries %}
+                                    {% if country.phone_code %}
+                                        <option value="{{ country.phone_code }}"
+                                            {% if country.phone_code == selected_phone_code %}selected{% endif %}>
+                                            {{ country.phone_code }} ({{ country.name }})
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <input type="text" id="id_{{ field.name }}" name="{{ field.name }}" class="form-control phone-number-input"
+                                   placeholder="Enter number" value="{{ field.value|default_if_none:'' }}">
+                        </div>
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% elif field.name == "skills" %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <input id="id_skills" name="skills" value="{{ field.value|default_if_none:'' }}" class="form-control">
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% elif field.name in "resume profile_picture company_logo registration_document" %}
+                    <div class="form-group file-upload-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                        <div class="file-preview" id="preview_{{ field.name }}"></div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-error">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button type="submit" class="submit-btn">Update Profile</button>
+        </form>
+    </div>
 </div>
 <script>
-  // Tagify for skills - Modified to save as comma-separated string
-var input = document.querySelector('#id_skills');
-if(input){
-    // Initialize Tagify with custom settings
-    var tagify = new Tagify(input, {
-        whitelist: [],
-        dropdown: { enabled: 0 },
-        // Add these configurations:
-        originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
-        enforceWhitelist: false,
-        keepInvalidTags: false,
-        backspace: "edit",
-        editTags: 1
-    });
-    
-    // Convert existing value from JSON to comma-separated if needed
-    if(input.value && input.value.startsWith('[')) {
-        try {
-            const tags = JSON.parse(input.value);
-            const tagValues = tags.map(tag => tag.value);
-            tagify.addTags(tagValues.join(','));
-        } catch(e) {
-            console.error("Error parsing tags:", e);
+    $(document).ready(function() {
+        // Select2 initialization
+        $('#id_country').select2({
+            placeholder: "Select or type a country",
+            allowClear: true,
+            width: '100%'
+        });
+        $('#id_state').select2({
+            placeholder: "Select or type a state",
+            allowClear: true,
+            width: '100%'
+        });
+        $('#id_phone_code').select2({
+            placeholder: "Code",
+            allowClear: true,
+            width: '120px',
+            dropdownAutoWidth: true
+        });
+        $('#id_contact_number_code').select2({
+            placeholder: "Code",
+            allowClear: true,
+            width: '120px',
+            dropdownAutoWidth: true
+        });
+
+        // AJAX for dependent state dropdown
+        $('#id_country').on('change', function() {
+            var countryId = $(this).val();
+            var $stateSelect = $('#id_state');
+            $stateSelect.html('<option value="">Loading...</option>');
+            fetch("{% url 'users:ajax_load_states' %}?country=" + countryId)
+                .then(response => response.json())
+                .then(data => {
+                    $stateSelect.html('<option value="">Select State</option>');
+                    data.forEach(function(state) {
+                        $stateSelect.append(`<option value="${state.id}">${state.name}</option>`);
+                    });
+                    $stateSelect.val(null).trigger('change');
+                });
+
+            // Auto-select phone code for both phone_number and contact_number
+            var phoneCode = $(this).find('option:selected').data('phone-code');
+            if (phoneCode) {
+                $('#id_phone_code').val(phoneCode).trigger('change');
+                $('#id_contact_number_code').val(phoneCode).trigger('change');
+            }
+        });
+
+        // Initialize phone codes based on current country selection
+        var currentCountry = $('#id_country').val();
+        if (currentCountry) {
+            var phoneCode = $('#id_country').find('option:selected').data('phone-code');
+            if (phoneCode) {
+                $('#id_phone_code').val(phoneCode).trigger('change');
+                $('#id_contact_number_code').val(phoneCode).trigger('change');
+            }
         }
-    }
-}
-  // Preview for image fields
-  function previewImage(input, previewId) {
-    if (input.files && input.files[0]) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById(previewId).innerHTML = '<img src="' + e.target.result + '" style="max-width:120px;max-height:120px;border-radius:10px;margin-top:8px;">';
-      }
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-  document.querySelectorAll('.file-input').forEach(function(input){
-    if(input.accept && input.accept.includes('image')){
-      input.addEventListener('change', function(){
-        previewImage(this, 'preview_' + this.name);
-      });
-    }
-  });
+
+        // Tagify for skills
+        var input = document.querySelector('#id_skills');
+        if(input){
+            new Tagify(input, {
+                whitelist: [],
+                dropdown: { enabled: 0 }
+            });
+        }
+        
+        // Preview for image fields
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(previewId).innerHTML = '<img src="' + e.target.result + '" style="max-width:120px;max-height:120px;border-radius:8px;margin-top:8px;">';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        document.querySelectorAll('input[type="file"]').forEach(function(input){
+            if(input.accept && input.accept.includes('image')){
+                input.addEventListener('change', function(){
+                    previewImage(this, 'preview_' + this.name);
+                });
+            }
+        });
+    });
 </script>
 {% endblock content %}

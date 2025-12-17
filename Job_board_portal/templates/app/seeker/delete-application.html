@@ -3,24 +3,26 @@
 {% block head %}
     <link rel="stylesheet" href="{% static 'css/delete-application.css' %}">
 {% endblock head %}
+
 {% block content %}
   {% include "partials/header.html" %}
 
   <section class="delete-application-section">
-    <h1>Delete Job Application</h1>
+    <h1>Delete Application</h1>
 
     <p class="delete-message">
       Are you sure you want to delete your application for 
-      <strong>{{ application.job.title }}</strong>?
+      <strong>{{ application.job.title }}</strong> at 
+      <strong>{{ application.job.employer.company_name }}</strong>?
     </p>
 
     <form action="{% url 'jobs:delete_application' application.id %}" method="POST">
       {% csrf_token %}
-      <button type="submit" class="btn btn-danger">Yes, Delete</button>
+      <button type="submit" class="btn btn-danger">Delete Application</button>
     </form>
+    
     <div class="cancel-link">
-      <a href="{% url 'jobs:view_application_detail' application.id %}">No, take me back</a>
+      <a href="{% url 'jobs:view_application_detail' application.id %}">Cancel</a>
     </div>
-
   </section>
 {% endblock content %}

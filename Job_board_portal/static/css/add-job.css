@@ -1,59 +1,61 @@
-/* ===== Base Styles ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== BASE STYLES - DARK THEME ===== */
 body, html {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: radial-gradient(ellipse at 50% 30%, #181a1f 0%, #0a0a0a 80%, #000 100%);
+  background: #000;
   color: #fff;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ===== Job Posting Container ===== */
+/* ===== JOB POSTING CONTAINER ===== */
 .account-info-container {
-  background: rgba(10, 10, 10, 0.96);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px 0 #000, 0 0 0 1.5px #fff1 inset;
-  padding: 2.5rem 2rem;
-  color: #fff;
-  border: 1.5px solid #222;
-  max-width: 540px;
-  width: 100%;
-  margin: 5vh auto;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0;
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-/* ===== Typography ===== */
-h2 {
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 12px #000a;
-  text-align: center;
+/* ===== FORM HEADER ===== */
+.account-info-container h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 1.5rem;
+  background: #000;
+  border-bottom: 1px solid #333;
+  text-align: left;
+  letter-spacing: -0.5px;
 }
 
-/* ===== Form Structure ===== */
+/* ===== FORM STRUCTURE ===== */
 .account-info-form {
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  background: #000;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
 }
 
 .form-group label {
-  margin-bottom: 0.4rem;
-  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
   color: #fff;
+  font-size: 0.875rem;
 }
 
-/* ===== Form Inputs ===== */
+/* ===== FORM INPUTS ===== */
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="number"],
@@ -61,48 +63,55 @@ h2 {
 .form-group input[type="date"],
 .form-group select,
 .form-group textarea {
-  padding: 0.7rem 1rem;
-  border-radius: 10px;
-  border: 1.5px solid #222;
-  background: rgba(20, 20, 20, 0.85);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
   color: #fff;
-  font-size: 1rem;
-  outline: none;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 8px #000a inset;
+  font-size: 0.9375rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+  border-color: #444;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border: 1.5px solid #fff;
-  background: #181a1f;
-  box-shadow: 0 0 8px #fff8;
+  outline: none;
+  border-color: #1d9bf0;
+  background: rgba(29, 155, 240, 0.05);
 }
 
-/* ===== Form Helpers ===== */
+/* ===== FORM HELPERS ===== */
 .form-help {
-  color: #aaa;
-  font-size: 0.95em;
-  margin-top: 0.2em;
+  color: #71767b;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  line-height: 1.4;
 }
 
 .form-error {
-  color: #ff6b6b;
-  background: rgba(30, 0, 0, 0.15);
-  border-left: 3px solid #ff6b6b;
-  padding: 0.4em 0.8em;
-  margin: 0.7em 0 0.3em 0;
-  font-size: 0.97em;
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
   font-weight: 500;
+  background: rgba(249, 24, 128, 0.05);
+  padding: 0.5rem;
   border-radius: 6px;
-  letter-spacing: 0.2px;
-  text-align: left;
-  box-shadow: 0 2px 8px #0002;
-  width: 100%;
+  border-left: 3px solid red;
 }
 
 .form-error ul {
@@ -110,124 +119,268 @@ h2 {
   padding-left: 1.2rem;
 }
 
-/* ===== Submit Button ===== */
+.form-error li {
+  margin-bottom: 0.2rem;
+}
+
+/* ===== SUBMIT BUTTON ===== */
 .submit-btn {
-  margin-top: 1rem;
-  padding: 0.8rem 0;
-  width: 100%;
-  background: #fff;
-  color: #000;
-  font-weight: bold;
-  border-radius: 12px;
+  background: #1d9bf0;
+  color: #fff;
   border: none;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-  box-shadow: 0 0 18px #fff2, 0 0 32px #fff1;
+  padding: 0.875rem 2rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  margin-top: 0.5rem;
+  min-height: 48px;
 }
 
 .submit-btn:hover {
-  background: #181a1f;
-  color: #fff;
-  box-shadow: 0 0 40px #fff, 0 0 80px #fff;
-  border: 1.5px solid #fff;
+  background: #1a8cd8;
+  transform: translateY(-1px);
 }
 
-
-.back-link {
-  margin-top: 1.5rem;
+.submit-btn:active {
+  transform: translateY(0);
 }
 
-.back-link a {
-  color: var(--highlight);
-  text-decoration: none;
-  font-size: 0.95rem;
-  border-bottom: 1px dashed white;
-  transition: opacity 0.2s ease;
+.submit-btn:focus-visible {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 2px;
 }
 
-.back-link a:hover {
-  opacity: 0.7;
-}
-
-
-/* ===== Tagify Custom Styles ===== */
+/* ===== TAGIFY CUSTOM STYLES ===== */
 .tagify {
-  --tags-border-color: #222;
-  --tags-hover-border-color: #333;
-  --tags-focus-border-color: #fff;
-  --tag-bg: #4dabff;
-  --tag-hover: #3a8fd9;
+  --tags-border-color: #333;
+  --tags-hover-border-color: #444;
+  --tags-focus-border-color: #1d9bf0;
+  --tag-bg: #1d9bf0;
+  --tag-hover: #1a8cd8;
   --tag-text-color: #fff;
   --tag-text-color--edit: #fff;
   --tag-remove-btn-color: #fff;
   --tag-remove-btn-bg: rgba(0,0,0,0.2);
-  --tag-invalid-color: #ff6b6b;
-  --tag-invalid-bg: rgba(255, 107, 107, 0.1);
+  --tag-invalid-color: #f91880;
+  --tag-invalid-bg: rgba(249, 24, 128, 0.1);
   --input-color: #fff;
-  --placeholder-color: #aaa;
-  --placeholder-color-focus: #ccc;
-  --dropdown-bg: #181a1f;
-  --dropdown-item--bg: #181a1f;
-  --dropdown-item--bg-hover: #222;
+  --placeholder-color: #71767b;
+  --placeholder-color-focus: #999;
+  --dropdown-bg: #000;
+  --dropdown-item--bg: #000;
+  --dropdown-item--bg-hover: #1a1a1a;
   --dropdown-item--text-color: #fff;
-  --dropdown-border-color: #222;
+  --dropdown-border-color: #333;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.tagify:hover {
+  border-color: #444;
+}
+
+.tagify--focus {
+  border-color: #1d9bf0 !important;
+  background: rgba(29, 155, 240, 0.05) !important;
+}
+
+.tagify__tag {
+  border-radius: 6px !important;
+  margin: 2px !important;
 }
 
 .tagify__tag > div {
   border-radius: 6px !important;
+  padding: 0.4em 0.6em !important;
+  font-size: 0.85rem !important;
 }
 
 .tagify__input {
-  padding: 0.5rem 0.7rem !important;
-}
-
-/* ===== Responsive Design ===== */
-@media (max-width: 600px) {
-  .account-info-container {
-    max-width: 95vw;
-    padding: 1.5rem 1rem;
-    margin: 2vh auto;
-  }
-  
-  h2 {
-    font-size: 1.5rem;
-  }
-  
-  .submit-btn {
-    font-size: 1rem;
-    padding: 0.7rem 0;
-  }
-  
-  .account-info-form {
-    gap: 1rem;
-  }
-}
-/* Add these to your existing CSS */
-.tagify {
-    --tags-border-color: #222;
-    --tags-hover-border-color: #333;
-    --tags-focus-border-color: #fff;
-    --tag-bg: #4dabff;
-    --tag-text-color: #fff;
-    --tag-remove-btn-color: #fff;
-    background: rgba(20, 20, 20, 0.85);
-    border-radius: 10px;
-    padding: 0.7rem 1rem;
-}
-
-.tagify__tag > div {
-    border-radius: 6px !important;
-    padding: 0.3em 0.5em !important;
-}
-
-.tagify__input {
-    color: #fff !important;
-    padding: 0 !important;
+  padding: 0 !important;
+  margin: 2px !important;
+  color: #fff !important;
+  font-size: 0.9375rem !important;
 }
 
 .tagify__input::placeholder {
-    color: #aaa !important;
+  color: #71767b !important;
+}
+
+.tagify__dropdown {
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+
+.tagify__dropdown__item {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+.tagify__dropdown__item:last-child {
+  border-bottom: none !important;
+}
+
+.tagify__dropdown__item--active {
+  background: #1a1a1a !important;
+}
+
+/* ===== FORM LAYOUT ENHANCEMENTS ===== */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* ===== BACK LINK SECTION ===== */
+.back-link {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid #333;
+  text-align: center;
+}
+
+.back-link a {
+  color: #1d9bf0;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-link a:hover {
+  color: #fff;
+}
+
+/* ===== FORM VALIDATION STYLES ===== */
+.form-group input:invalid,
+.form-group select:invalid,
+.form-group textarea:invalid {
+  border-color: #f91880;
+}
+
+.form-group input:valid,
+.form-group select:valid,
+.form-group textarea:valid {
+  border-color: #10b981;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .account-info-container {
+    margin: 1rem;
+    border-radius: 8px;
+  }
+
+  .account-info-container h2 {
+    padding: 1.25rem;
+    font-size: 1.25rem;
+  }
+
+  .account-info-form {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .back-link {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .account-info-container {
+    margin: 0.5rem;
+    border-radius: 6px;
+  }
+
+  .account-info-container h2 {
+    padding: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .account-info-form {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .submit-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .back-link {
+    padding: 1rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .submit-btn,
+  .form-group input,
+  .form-group select,
+  .form-group textarea,
+  .tagify {
+    transition: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.tagify--focus,
+.back-link a:focus {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 1px;
+}
+
+/* Loading state */
+.submit-btn.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Success state */
+.submit-btn.success {
+  background: #10b981;
+}
+
+/* Error state */
+.submit-btn.error {
+  background: #f91880;
 }

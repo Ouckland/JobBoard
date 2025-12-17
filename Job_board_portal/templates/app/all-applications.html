@@ -1,29 +1,47 @@
 {% extends "partials/base.html" %}
 {% load static %}
+{% load custom_filters %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/all-jobs.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock head %}
 
-
 {% block content %}
   {% include "partials/header.html" %}
 <div class="job-search-container">
+  
+  <!-- Mobile Search Toggle -->
+  <button class="mobile-search-toggle" id="mobileSearchToggle" title="Search & Filter">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+
   <!-- Search Form -->
-  <form method="get" class="search-filters">
+  <form method="get" class="search-filters" id="searchFilters">
     <div class="search-bar">
       <input type="text" name="q" placeholder="Type the job name..." value="{{ search_query }}">
       <button type="submit">
         <i class="fas fa-search"></i> Search
       </button>
     </div>
-    
+
     <div class="filter-row">
-      <div class="filter-group">
-        <label>Applicant Name</label>
-        <input type="text" name="applicant" placeholder="Any applicant" value="{{ applicant_name }}">
-      </div>
-      
+      {% if user.employerprofile %}
+        <div class="filter-group">
+          <label>Applicant Name</label>
+          <input type="text" name="applicant" placeholder="Any applicant" value="{{ applicant_name }}">
+        </div>
+      {% elif profile_type == 'seeker' %}
+        <div class="filter-group">
+          <label>Job Title</label>
+          <input type="text" name="job_title" placeholder="Any job title" value="{{ job_title }}">
+        </div>
+
+        <div class="filter-group">
+          <label>Location</label>
+          <input type="text" name="location" placeholder="Job location" value="{{ location }}">
+        </div>
+      {% endif %}
+
       <div class="filter-group">
         <label>Status</label>
         <select name="status">
@@ -35,11 +53,6 @@
           {% endfor %}
         </select>
       </div>
-      
-      <div class="filter-group">
-        <label>Job Title</label>
-        <input type="text" name="job_title" placeholder="Any job title" value="{{ job_title }}">
-      </div>
 
       <div class="filter-group">
         <label>Application Date</label>
@@ -50,7 +63,12 @@
 
   <!-- Results Count -->
   <div class="results-count">
-     Total of {{ applications.paginator.count }} applications
+    Total of {{ applications.paginator.count }} application{{ applications.paginator.count|pluralize }}
+    {% if search_query or applicant_name or status or job_title or application_date %}
+      <a href="{% url 'jobs:all_applications' %}" class="clear-filters">
+        <i class="fas fa-times"></i> Clear filters
+      </a>
+    {% endif %}
   </div>
 
   <!-- Applications List -->
@@ -66,12 +84,21 @@
           </div>
         </div>
         
+        <!-- Application Actions -->
+        <div class="job-actions">
+          {% if user.employerprofile %}
+            <a href="{% url 'jobs:review_application' application.id %}" class="action-btn view" title="Review">
+              <i class="fas fa-eye"></i>
+            </a>
+          
+          {% endif %}
+        </div>
       </div>
       
       <div class="job-details">
         <div class="job-company">
           <span><i class="fas fa-user"></i> {{ application.applicant.user.email }}</span>
-          <span><i class="fas fa-calendar-alt"></i> Applied {{ application.application_date|timesince }} ago</span>
+          <span><i class="fas fa-calendar-alt"></i> Applied {{ application.application_date|date:"M d, Y" }}</span>
         </div>
         
         <div class="job-salary">
@@ -85,15 +112,16 @@
       </div>
       
       <div class="job-description">
-        <p><strong>Skills:</strong> {{ application.applicant.skills|default:"Not specified" }}</p>
+        <p><strong>Skills Required:</strong> {{ application.job.skills_required|display_skills }}</p>        
         <p><strong>Experience:</strong> {{ application.applicant.experience|default:"Not specified" }}</p>
       </div>
       
       <div class="job-footer">
-        <span class="post-date"><i class="fas fa-download"></i> 
-          <a href="{{ application.resume.url }}" download>Download Resume</a>
+        <span class="post-date">
+          <i class="fas fa-download"></i> 
+          <a href="{{ application.resume.url }}" download class="download-link">Download Resume</a>
           {% if application.attachments %}
-            | <a href="{{ application.attachments.url }}" download>Download Attachments</a>
+            | <a href="{{ application.attachments.url }}" download class="download-link">Download Attachments</a>
           {% endif %}
         </span>
         <div class="footer-actions">
@@ -107,8 +135,18 @@
     <div class="no-results">
       <i class="fas fa-file-alt"></i>
       <h3>No applications found</h3>
-      <p>No one has applied to your jobs yet</p>
-      <a href="{% url 'jobs:all_jobs' %}" class="clear-filters">View your job posts</a>
+      <p>
+        {% if user.employerprofile %}
+          No one has applied to your jobs yet
+        {% else %}
+          You haven't applied to any jobs yet
+        {% endif %}
+      </p>
+      {% if user.employerprofile %}
+        <a href="{% url 'jobs:all_jobs' %}" class="clear-filters">View your job posts</a>
+      {% else %}
+        <a href="{% url 'jobs:all_jobs' %}" class="clear-filters">Browse available jobs</a>
+      {% endif %}
     </div>
     {% endfor %}
   </div>
@@ -142,4 +180,127 @@
   </div>
   {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const searchFilters = document.getElementById('searchFilters');
+    
+    // Only apply mobile behavior on small screens
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+    
+    function toggleSearch() {
+        if (!isMobile()) return;
+        
+        searchFilters.classList.toggle('active');
+        mobileSearchToggle.classList.toggle('active');
+        
+        // Update icon based on state
+        const icon = mobileSearchToggle.querySelector('i');
+        if (searchFilters.classList.contains('active')) {
+            icon.className = 'fa-solid fa-times';
+            mobileSearchToggle.setAttribute('title', 'Close Search');
+        } else {
+            icon.className = 'fa-solid fa-magnifying-glass';
+            mobileSearchToggle.setAttribute('title', 'Search & Filter');
+        }
+    }
+    
+    // Toggle search on button click
+    mobileSearchToggle.addEventListener('click', toggleSearch);
+    
+    // Close search when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        if (!isMobile()) return;
+        
+        if (searchFilters.classList.contains('active') &&
+            !searchFilters.contains(event.target) &&
+            !mobileSearchToggle.contains(event.target)) {
+            toggleSearch();
+        }
+    });
+    
+    // Close search on escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && isMobile() && searchFilters.classList.contains('active')) {
+            toggleSearch();
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (!isMobile()) {
+            // Reset to default state on desktop
+            searchFilters.classList.remove('active');
+            mobileSearchToggle.classList.remove('active');
+            const icon = mobileSearchToggle.querySelector('i');
+            icon.className = 'fa-solid fa-magnifying-glass';
+            mobileSearchToggle.setAttribute('title', 'Search & Filter');
+        }
+    });
+});
+</script>
+
+<style>
+/* Additional styles for applications page */
+.job-applicant {
+  background: rgba(77, 171, 255, 0.1);
+  color: #4dabff;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.application-status {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.application-status.pending {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+}
+
+.application-status.accepted {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+
+.application-status.rejected {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+}
+
+.application-status.reviewed {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.download-link {
+  color: #4dabff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.download-link:hover {
+  color: #3a8fd9;
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .job-applicant,
+  .application-status {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.6rem;
+  }
+}
+</style>
 {% endblock %}

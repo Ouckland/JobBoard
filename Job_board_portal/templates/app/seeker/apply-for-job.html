@@ -22,23 +22,43 @@
       <div class="form-group">
         {{ form.cover_letter.label_tag }}
         {{ form.cover_letter }}
+        {% if form.cover_letter.help_text %}
+          <small style="color: #71767b; font-size: 0.75rem; margin-top: 0.25rem;">
+            {{ form.cover_letter.help_text }}
+          </small>
+        {% endif %}
       </div>
 
       <div class="form-group">
         {{ form.resume.label_tag }}
         {{ form.resume }}
+        {% if form.resume.help_text %}
+          <small style="color: #71767b; font-size: 0.75rem; margin-top: 0.25rem;">
+            {{ form.resume.help_text }}
+          </small>
+        {% endif %}
       </div>
 
       <div class="form-group">
         {{ form.attachments.label_tag }}
         {{ form.attachments }}
+        {% if form.attachments.help_text %}
+          <small style="color: #71767b; font-size: 0.75rem; margin-top: 0.25rem;">
+            {{ form.attachments.help_text }}
+          </small>
+        {% endif %}
       </div>
 
-      <button type="submit" class="submit-btn">✅ Submit Application</button>
+      <button type="submit" class="submit-btn"></button>
     </form>
 
     <div class="back-link">
-      <a href="{% url 'jobs:view_job_detail' job.id %}">← Back to Job Details</a>
+      <a href="{% url 'jobs:view_job_detail' job.id %}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+        </svg>
+        Back to Job Details
+      </a>
     </div>
   </section>
 {% endblock content %}

@@ -1,3 +1,5 @@
+import os
+
 """
 Django settings for config project.
 
@@ -25,8 +27,16 @@ SECRET_KEY = 'django-insecure-q6=zo84e3!v5vun-=3qpl3sd^5s6$!7mxdll6*(vh9@+prqcq!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS",
+    "127.0.0.1,localhost,.ngrok.io,.ngrok-free.app"
+).split(",")
 
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    "https://*.ngrok-free.app"
+).split(",")
 
 # Application definition
 

@@ -2,107 +2,202 @@
 {% load static %}
 
 {% block head %}
-<link rel="stylesheet" href="{% static 'css/view-application-detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/view-application-detail.css' %}">
 {% endblock head %}
 
 {% block content %}
 {% include "partials/header.html" %}
 
 <section class="application-detail-section">
-  <h2>Application for: <span>{{ application.job.title }}</span></h2>
+    <h2>Application for: <span>{{ application.job.title }}</span></h2>
 
-  <div class="card">
-    <div class="carousel-previous">
-      <button class="carousel-btn prev">
-        <img src="{% static 'images/arrow-back.png' %}" alt="Previous">
-      </button>
+    <div class="card">
+        <!-- Previous Button -->
+        <button class="carousel-btn prev" aria-label="Previous slide">
+            <img src="{% static 'images/arrow-back.png' %}" alt="Previous" width="20" height="20">
+        </button>
+
+        <!-- Carousel Container -->
+        <div class="application-carousel" aria-live="polite">
+            <!-- Slide 1: Applicant Info -->
+            <div class="application-slide active" role="tabpanel" aria-label="Slide 1 of 3">
+                <p>
+                    <strong>Name:</strong>
+                    <span>{{ application.applicant.full_name }}</span>
+                </p>
+                <p>
+                    <strong>Email:</strong>
+                    <span>{{ application.applicant.user.email }}</span>
+                </p>
+                <p>
+                    <strong>Bio:</strong>
+                    <span>{{ application.applicant.bio }}</span>
+                </p>
+                <p>
+                    <strong>Status:</strong>
+                    <span>
+                        {% if application.status == 'accepted' %}
+                            <span class="status accepted">{{ application.get_status_display }}</span>
+                        {% elif application.status == 'rejected' %}
+                            <span class="status rejected">{{ application.get_status_display }}</span>
+                        {% else %}
+                            <span class="status pending">{{ application.get_status_display }}</span>
+                        {% endif %}
+                    </span>
+                </p>
+                <p>
+                    <strong>Applied on:</strong>
+                    <span>{{ application.application_date|date:"F j, Y" }}</span>
+                </p>
+            </div>
+
+            <!-- Slide 2: Cover Letter -->
+            <div class="application-slide" role="tabpanel" aria-label="Slide 2 of 3">
+                <p><strong>Cover Letter:</strong></p>
+                <div class="cover-text">{{ application.cover_letter }}</div>
+            </div>
+
+            <!-- Slide 3: Resume & Attachments -->
+            <div class="application-slide" role="tabpanel" aria-label="Slide 3 of 3">
+                <p><strong>Resume:</strong></p>
+                <a class="download-btn" href="{{ application.resume.url }}" download>
+                    <i class="fas fa-download"></i>Download Resume
+                </a>
+
+                {% if application.attachments %}
+                    <p><strong>Additional Attachment:</strong></p>
+                    <a class="download-btn" href="{{ application.attachments.url }}" download>
+                        <i class="fas fa-download"></i>Download Attachment
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Next Button -->
+        <button class="carousel-btn next" aria-label="Next slide">
+            <img src="{% static 'images/arrow-forward.png' %}" alt="Next" width="20" height="20">
+        </button>
     </div>
 
-    <div class="application-carousel">
-      <!-- Slide 1: Applicant Info -->
-      <div class="application-slide active">
-        <p><strong>Name:</strong> {{ application.applicant.full_name }}</p>
-        <p><strong>Email:</strong> {{ application.applicant.user.email }}</p>
-        <p><strong>Bio:</strong> {{ application.applicant.bio }}</p>
-        <p><strong>Status:</strong> 
-          {% if application.status == 'accepted' %}
-            <span class="status accepted">{{ application.get_status_display }}</span>
-          {% elif application.status == 'rejected' %}
-            <span class="status rejected">{{ application.get_status_display }}</span>
-          {% else %}
-            <span class="status pending">{{ application.get_status_display }}</span>
-          {% endif %}
-        </p>
-        <p><strong>Applied on:</strong> {{ application.application_date|date:"F j, Y" }}</p>
-      </div>
+    <!-- Slide Indicator -->
+    <div class="slide-indicators">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
 
-      <!-- Slide 2: Cover Letter -->
-      <div class="application-slide">
-        <p><strong>Cover Letter:</strong></p>
-        <p class="cover-text">{{ application.cover_letter }}</p>
-      </div>
-
-      <!-- Slide 3: Resume & Attachments -->
-      <div class="application-slide">
-        <p><strong>Resume:</strong></p>
-        <a class="download-btn" href="{{ application.resume.url }}" download>Download Resume</a>
-
-        {% if application.attachments %}
-          <p><strong>Attachment:</strong></p>
-          <a class="download-btn" href="{{ application.attachments.url }}" download>Download Attachment</a>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        {% if is_seeker and application.status == 'pending' %}
+            <a href="{% url 'jobs:update_application' application.id %}" class="btn btn-primary">
+                Update Application
+            </a>
+            <a href="{% url 'jobs:delete_application' application.id %}" class="btn btn-danger">
+                Delete Application
+            </a>
+        {% elif is_employer %}
+            <a href="{% url 'jobs:review_application' application.id %}" class="btn btn-success">
+                Review Application
+            </a>
         {% endif %}
-      </div>
     </div>
-
-    <div class="carousel-next">
-      <button class="carousel-btn next">
-        <img src="{% static 'images/arrow-forward.png' %}" alt="Next">
-      </button>
-    </div>
-  </div>
-
-  <div class="slide-indicators">
-    <span class="dot active"></span>
-    <span class="dot"></span>
-    <span class="dot"></span>
-  </div>
-
-  <div class="action-buttons">
-    {% if is_seeker and application.status == 'pending' %}
-      <a href="{% url 'jobs:update_application' application.id %}" class="btn btn-primary">Update Application</a>
-      <a href="{% url 'jobs:delete_application' application.id %}" class="btn btn-danger">Delete Application</a>
-    {% elif is_employer %}
-      <a href="{% url 'jobs:review_application' application.id %}" class="btn btn-success">Review Application</a>
-    {% endif %}
-  </div>
 </section>
 
+<!-- Enhanced Carousel Script -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const slides = document.querySelectorAll(".application-slide");
-  const prevBtn = document.querySelector(".carousel-btn.prev");
-  const nextBtn = document.querySelector(".carousel-btn.next");
-  const dots = document.querySelectorAll(".dot");
-  let current = 0;
+    const slides = document.querySelectorAll(".application-slide");
+    const prevBtn = document.querySelector(".carousel-btn.prev");
+    const nextBtn = document.querySelector(".carousel-btn.next");
+    const dots = document.querySelectorAll(".dot");
 
-  function updateSlides(index) {
-    slides.forEach((slide, i) => {
-      slide.classList.toggle("active", i === index);
-      dots[i].classList.toggle("active", i === index);
-    });
-  }
+    let currentSlide = 0;
 
-  nextBtn.addEventListener("click", () => {
-    current = (current + 1) % slides.length;
-    updateSlides(current);
-  });
+    function updateSlides(index) {
+        // Update ARIA attributes for accessibility
+        slides.forEach((slide, i) => {
+            slide.classList.remove("active", "slide-in-left", "slide-in-right");
+            slide.setAttribute("aria-hidden", "true");
+            
+            if (i === index) {
+                const direction = index > currentSlide ? "slide-in-right" : "slide-in-left";
+                slide.classList.add("active", direction);
+                slide.setAttribute("aria-hidden", "false");
+            }
+        });
 
-  prevBtn.addEventListener("click", () => {
-    current = (current - 1 + slides.length) % slides.length;
-    updateSlides(current);
-  });
+        // Update dots
+        dots.forEach((dot, i) => {
+            dot.classList.toggle("active", i === index);
+        });
 
-  updateSlides(current);
+        currentSlide = index;
+        
+        // Update button states
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === slides.length - 1;
+    }
+
+    function navigateSlides(direction) {
+        let newIndex;
+        if (direction === 'next') {
+            newIndex = (currentSlide + 1) % slides.length;
+        } else {
+            newIndex = (currentSlide - 1 + slides.length) % slides.length;
+        }
+        updateSlides(newIndex);
+    }
+
+    // Initialize carousel
+    if (slides.length > 0) {
+        updateSlides(currentSlide);
+
+        // Button event listeners
+        prevBtn.addEventListener("click", () => navigateSlides('prev'));
+        nextBtn.addEventListener("click", () => navigateSlides('next'));
+
+        // Dot click events
+        dots.forEach((dot, index) => {
+            dot.addEventListener("click", () => updateSlides(index));
+        });
+
+        // Keyboard navigation
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") {
+                navigateSlides('prev');
+            } else if (e.key === "ArrowRight") {
+                navigateSlides('next');
+            }
+        });
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        const carousel = document.querySelector('.application-carousel');
+        
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    navigateSlides('next'); // Swipe left
+                } else {
+                    navigateSlides('prev'); // Swipe right
+                }
+            }
+        }
+    }
 });
 </script>
 {% endblock content %}

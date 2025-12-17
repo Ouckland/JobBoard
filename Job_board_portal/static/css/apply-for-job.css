@@ -1,54 +1,62 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-:root {
-  --bg: #0b0d14;
-  --card-bg: #161923;
-  --text-main: #f0f0f0;
-  --text-muted: #b0b0b0;
-  --border: #2e2e3f;
-  --highlight: #ffffff;
-  --input-bg: #1f1f2f;
-  --input-border: #444;
-  --hover-bg: rgba(255, 255, 255, 0.05);
-}
-
+/* ===== BASE STYLES - DARK THEME ===== */
 body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg);
-  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #000;
+  color: #fff;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ===== SECTION CONTAINER - DARK CARD STYLE ===== */
 .apply-job-section {
   max-width: 720px;
-  margin: 6rem auto 3rem;
-  padding: 2rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px #0008;
+  margin: 2rem auto;
+  padding: 0;
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ===== JOB HEADER ===== */
+.job-header {
+  padding: 1.5rem;
+  background: #000;
+  border-bottom: 1px solid #333;
 }
 
 .job-header h2 {
-  font-size: 1.6rem;
-  margin-bottom: 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: #fff;
 }
 
 .highlight {
-  color: var(--highlight);
+  color: #1d9bf0;
 }
 
 .job-header p {
-  margin: 0.3rem 0;
-  color: var(--text-muted);
+  margin: 0.5rem 0;
+  font-size: 0.9375rem;
+  color: #71767b;
 }
 
+.job-header strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===== APPLICATION FORM ===== */
 .application-form {
-  margin-top: 2rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  background: #000;
 }
 
 .form-group {
@@ -58,102 +66,205 @@ body {
 
 .form-group label {
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-main);
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.875rem;
 }
 
 .form-group input,
+.form-group textarea,
+.form-group select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9375rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+}
+
 .form-group textarea {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  padding: 0.8rem 1rem;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  transition: border 0.2s, background 0.2s;
+  min-height: 120px;
+  resize: vertical;
 }
 
 .form-group input:hover,
-.form-group textarea:hover {
-  border-color: white;
-  background: #2a2a3a;
+.form-group textarea:hover,
+.form-group select:hover {
+  border-color: #444;
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
-  border-color: var(--highlight);
-  background: #2f2f42;
+  border-color: #1d9bf0;
+  background: rgba(29, 155, 240, 0.05);
 }
-.form-group a{
-    text-decoration: none;
-color: #b0b0b0;}
 
+/* File input styling */
+.form-group input[type="file"] {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.form-group input[type="file"]:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== SUBMIT BUTTON ===== */
 .submit-btn {
-  background: transparent;
-  color: white;
-  border: 2px solid white;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
+  background: #1d9bf0;
+  color: #fff;
+  border: none;
+  padding: 0.875rem 2rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
 }
 
 .submit-btn:hover {
-  background: white;
-  color: #0b0d14;
-  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
+  background: #1a8cd8;
+  transform: translateY(-1px);
 }
 
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Remove the checkmark emoji and use text only */
+.submit-btn::before {
+  content: "Submit Application";
+}
+
+/* ===== BACK LINK ===== */
 .back-link {
-  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid #333;
 }
 
 .back-link a {
-  color: var(--highlight);
+  color: #1d9bf0;
   text-decoration: none;
-  font-size: 0.95rem;
-  border-bottom: 1px dashed white;
-  transition: opacity 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .back-link a:hover {
-  opacity: 0.7;
+  color: #fff;
 }
 
-/* Responsive */
+/* ===== FORM VALIDATION STYLES ===== */
+.form-group input:invalid,
+.form-group textarea:invalid {
+  border-color: #e41e3f;
+}
+
+.form-group input:valid,
+.form-group textarea:valid {
+  border-color: #10b981;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .apply-job-section {
-    padding: 1.5rem;
-    margin: 5rem 1rem 2rem;
+    margin: 1rem;
+    border-radius: 8px;
+  }
+
+  .job-header {
+    padding: 1.25rem;
   }
 
   .job-header h2 {
-    font-size: 1.4rem;
+    font-size: 1.125rem;
+  }
+
+  .application-form {
+    padding: 1.25rem;
+    gap: 1.25rem;
   }
 
   .submit-btn {
     width: 100%;
+    justify-content: center;
     text-align: center;
+  }
+
+  .back-link {
+    padding: 1.25rem;
   }
 }
 
 @media (max-width: 480px) {
   .apply-job-section {
+    margin: 0.5rem;
+    border-radius: 6px;
+  }
+
+  .job-header {
     padding: 1rem;
   }
 
   .job-header h2 {
-    font-size: 1.2rem;
+    font-size: 1rem;
+  }
+
+  .job-header p {
+    font-size: 0.875rem;
+  }
+
+  .application-form {
+    padding: 1rem;
+    gap: 1rem;
   }
 
   .form-group input,
-  .form-group textarea {
-    font-size: 0.95rem;
-    padding: 0.7rem 0.9rem;
+  .form-group textarea,
+  .form-group select {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
   }
+
+  .submit-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .back-link {
+    padding: 1rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .submit-btn,
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    transition: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.submit-btn:focus,
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus,
+.back-link a:focus {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 1px;
 }

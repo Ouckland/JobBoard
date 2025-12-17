@@ -2,6 +2,7 @@ from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db import IntegrityError
+from django.template import engines
 
 from django.db.models import Q, Count, Case, When, IntegerField, Value
 from django.utils import timezone
@@ -14,7 +15,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import Http404, HttpResponseNotFound, HttpResponseForbidden
-from .models import JobApplication, JobPosting, Notification, JobType, Status, SavedJob, JobStatus
+from .models import JobApplication, JobPosting, Notification, JobType, Status, SavedJob, JobStatus, ApplicationReview
 from .forms import PostJobForm, ApplyForJobForm
 from django.utils import timezone
 from users.models import EmployerProfile, SeekerProfile
@@ -31,7 +32,6 @@ User = get_user_model()
 def home(request):
     return render(request, 'app/home.html')
 
-
 @login_required
 def dashboard(request):
     user = request.user
@@ -39,24 +39,54 @@ def dashboard(request):
 
     if profile is None:
         messages.error(request, "No profile found. Please complete your profile setup.")
-        return redirect('users:profile_setup')
+        return redirect('users:choose_account_type')
 
     context = {'profile_type': profile_type}
 
     if profile_type == 'employer':
-        # Employer dashboard logic remains unchanged
-        context['active_jobs'] = JobPosting.objects.filter(
+        # Active jobs (not expired)
+        active_jobs = JobPosting.objects.filter(
             employer=profile,
-            deadline__gte=timezone.now().date()
-        )
-        context['total_applications'] = JobApplication.objects.filter(
-            job__in=context['active_jobs']
+            deadline__gte=timezone.now().date(),
+            job_status='open'
+        ).order_by('-posted_date')
+        
+        # Recent applications (last 7 days)
+        one_week_ago = timezone.now() - timezone.timedelta(days=7)
+        recent_applications = JobApplication.objects.filter(
+            job__employer=profile,
+            application_date__gte=one_week_ago
+        ).select_related('applicant', 'job').order_by('-application_date')[:5]
+        
+        # Dashboard statistics
+        total_jobs_posted = JobPosting.objects.filter(employer=profile).count()
+        total_applications = JobApplication.objects.filter(job__employer=profile).count()
+        closed_jobs = JobPosting.objects.filter(
+            employer=profile,
+            deadline__lt=timezone.now().date()
         ).count()
+        
+        # Popular jobs (most applications)
+        popular_jobs = JobPosting.objects.filter(
+            employer=profile
+        ).annotate(
+            application_count=Count('applications')
+        ).order_by('-application_count')[:3]
+        
+        context.update({
+            'active_jobs': active_jobs,
+            'recent_applications': recent_applications,
+            'total_jobs_posted': total_jobs_posted,
+            'total_applications': total_applications,
+            'closed_jobs': closed_jobs,
+            'popular_jobs': popular_jobs,
+        })
 
     elif profile_type == 'seeker':
         # Base queryset - all active jobs not applied to by this seeker
         jobs = JobPosting.objects.filter(
-            deadline__gte=timezone.now().date()
+            deadline__gte=timezone.now().date(),
+            job_status='open'
         ).exclude(applications__applicant=profile)
 
         # --- Search & Filter Functionality ---
@@ -78,14 +108,67 @@ def dashboard(request):
         if location:
             jobs = jobs.filter(location__icontains=location)
 
-
         # Store search parameters in context
         context['search_query'] = search_query
-        context['selected_job_type'] = JobType.choices
+        context['selected_job_type'] = job_type
         context['selected_location'] = location
 
+        # --- DEBUG: Check what we have before recommendations ---
+        print(f"Total jobs after filters: {jobs.count()}")
+        print(f"Seeker skills: {profile.skills}")
+
         # --- Recommended Jobs ---
-        recommended_jobs = jobs  # Start with filtered jobs
+        recommended_jobs = []
+        
+        # In your dashboard view, update the recommendation logic:
+        if profile.skills and jobs.exists():
+            seeker_skills = [s.strip().lower() for s in profile.skills.split(",") if s.strip()]
+            
+            jobs_with_scores = []
+            for job in jobs:
+                if job.skills_required:
+                    job_skills = [s.strip().lower() for s in job.skills_required.split(",") if s.strip()]
+                    
+                    # Calculate matches
+                    matched_skills = list(set(seeker_skills) & set(job_skills))
+                    missing_skills = list(set(job_skills) - set(seeker_skills))
+                    match_count = len(matched_skills)
+                    
+                    # Calculate percentage match
+                    if job_skills:
+                        percent_match = int((match_count / len(job_skills)) * 100)
+                    else:
+                        percent_match = 0
+                    
+                    # Determine match quality
+                    if percent_match >= 80:
+                        match_quality = "excellent"
+                    elif percent_match >= 60:
+                        match_quality = "good"
+                    elif percent_match >= 40:
+                        match_quality = "fair"
+                    else:
+                        match_quality = "weak"
+                    
+                    # Attach all match data to job object
+                    job.match_score = percent_match
+                    job.match_quality = match_quality
+                    job.matched_skills = matched_skills
+                    job.missing_skills = missing_skills
+                    job.total_skills_required = len(job_skills)
+                    
+                    jobs_with_scores.append((job, percent_match))
+            
+            # Sort by match score
+            jobs_with_scores.sort(key=lambda x: (x[1], x[0].posted_date), reverse=True)
+            recommended_jobs = [job for job, score in jobs_with_scores]
+        
+        # Fallback: if no skills or no matches, show popular jobs
+        if not recommended_jobs:
+            print("Using fallback: popular jobs")
+            recommended_jobs = jobs.annotate(
+                application_count=Count('applications')
+            ).order_by('-application_count', '-posted_date')[:10]
         
         # Check saved status for all recommended jobs
         saved_job_ids = SavedJob.objects.filter(
@@ -94,46 +177,21 @@ def dashboard(request):
         ).values_list('job_id', flat=True)
         context['saved_job_ids'] = list(saved_job_ids)
 
-        if profile.skills:
-            seeker_skills = [s.strip().lower() for s in profile.skills.split(",") if s.strip()]
-            skill_query = Q()
-            for skill in seeker_skills:
-                skill_query |= (
-                    Q(skills_required__icontains=f" {skill} ") |
-                    Q(skills_required__icontains=f",{skill},") |
-                    Q(skills_required__istartswith=f"{skill},") |
-                    Q(skills_required__iendswith=f",{skill}")
-                )
-            recommended_jobs = recommended_jobs.filter(skill_query).annotate(
-                match_score=Count(
-                    Case(
-                        *[When(skills_required__icontains=skill, then=1) for skill in seeker_skills],
-                        output_field=IntegerField()
-                    )
-                )
-            ).order_by('-match_score', '-posted_date')
-        else:
-            # Fallback: Trending jobs if no skills specified
-            recommended_jobs = jobs.annotate(
-                application_count=Count('applications')
-            ).order_by('-application_count', '-posted_date')
-
         # Pagination for search results
-        paginator = Paginator(jobs, 10)  # Show 10 jobs per page
+        paginator = Paginator(jobs, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
         context.update({
-            'recommended_jobs': recommended_jobs[:10],
-            'latest_jobs': page_obj,  # Paginated search results
-            'job_types': JobType.choices,  # Add this to your model if not exists
+            'recommended_jobs': recommended_jobs[:10],  # Limit to 10 recommendations
+            'latest_jobs': page_obj,
+            'job_types': JobType.choices,
             'job_applications': JobApplication.objects.filter(
                 applicant=profile
-            ).order_by('-application_date')[:5]
+            ).select_related('job', 'job__employer').order_by('-application_date')[:5]
         })
 
     return render(request, 'app/dashboard.html', context)
-
 
 
 
@@ -153,6 +211,7 @@ def add_job(request):
         if form.is_valid():
             try:
                 job = form.save(commit=False)
+                job.job_status = JobStatus.open
                 job.employer = profile
                 job.save()
                 create_notification(
@@ -376,71 +435,142 @@ def view_application_detail(request, application_id):
     }
     return render(request, 'app/seeker/view-application-detail.html', context)
 
+
 @login_required
 def review_application(request, application_id):
-    user = request.user
-
-    try:
-        application = get_object_or_404(JobApplication, id=application_id)
-        
-        # Only employers who posted the job can review
-        if user.is_authenticated and hasattr(user, 'employerprofile'):
-            if application.job.employer != user.employerprofile:
-                messages.error(request, "You are not authorized to review this application.")
-                return redirect('jobs:dashboard')
-        else:
-            messages.error(request, "You must be an employer to review applications.")
-            return redirect('jobs:dashboard')
-
-        if request.method == 'POST':
-            action = request.POST.get('action')
-            if action == 'accept':
-                application.status = 'accepted'
-                application.save()
-
-                create_notification(
-                    recipient=request.user,
-                    message=f'You have accepted the application from {application.applicant.full_name} succesfully'
-                )
-                try:
-
-                    create_notification(
-                        recipient=application.applicant.user,
-                        message=f"Your application for the role {application.job.title} at {application.job.employer.company_name} has been reviewed and accepted succesfully",
-                        url=reverse("jobs:view_application_detail", args=[application.id]),
-                    )
-                except Exception as e:
-                    messages.error(request, str(e))
-
-                messages.success(request, 'Application accepted successfully.')
-            elif action == 'reject':
-                application.status = 'rejected'
-                application.save()
-
-                create_notification(
-                    recipient=request.user,
-                    message=f'You have rejected the application from {application.applicant.full_name} succesfully'
-                )
-                
-                try:
-                    create_notification(
-                        recipient=application.applicant.user,
-                        message=f"Sadly, your application for the role {application.job.title} at {application.job.employer.company_name} has been reviewed and rejected. Better luck next time",
-                        url=reverse("jobs:view_application_detail", args=[application.id]),
-                    )
-                except Exception as e:
-                    messages.error(request, str(e))
-
-                messages.success(request, 'Application rejected successfully.')
-            return redirect('jobs:view_applications', job_id=application.job.id)
-
-    except JobApplication.DoesNotExist:
-        messages.error(request, 'Application not found.')
+    application = get_object_or_404(JobApplication, id=application_id)
+    
+    if application.job.employer != request.user.employerprofile:
+        messages.error(request, "Not authorized.")
         return redirect('jobs:dashboard')
 
-    return render(request, 'app/employer/review-application.html', {'application': application})
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'accept':
+            # Redirect to email composition for acceptance
+            return redirect('jobs:compose_acceptance_email', application_id=application.id)
+            
+        elif action == 'reject':
+            application.status = 'rejected'
+            application.save()
+            messages.success(request, 'Application rejected.')
+            
+        return redirect('jobs:view_applications', job_id=application.job.id)
+
+    return render(request, 'app/employer/review-application.html', {
+        'application': application,
+    })
 
 
+@login_required
+def compose_acceptance_email(request, application_id):
+    application = get_object_or_404(JobApplication, id=application_id)
+    
+    if application.job.employer != request.user.employerprofile:
+        messages.error(request, "Not authorized.")
+        return redirect('jobs:dashboard')
+    
+    # Prevent reviewing already reviewed applications
+    if application.status != 'pending':
+        messages.error(request, "Application already reviewed.")
+        return redirect('jobs:view_applications', job_id=application.job.id)
+
+    context = {
+        'candidate_name': application.applicant.full_name,
+        'job_title': application.job.title,
+        'company_name': application.job.employer.company_name,
+    }
+
+    if request.method == 'POST':
+        subject = request.POST.get('subject', '').strip()
+        message_content = request.POST.get('message', '').strip()
+
+        if not subject or not message_content:
+            messages.error(request, 'Subject and message are required.')
+            return render(request, 'app/employer/compose-acceptance-email.html', {
+                'application': application,
+                'subject': subject,
+                'message': message_content,
+                **context
+            })
+
+        try:
+            # Replace template variables
+            final_subject = subject.replace('{candidate_name}', context['candidate_name'])
+            final_message = message_content.replace('{candidate_name}', context['candidate_name'])
+            final_message = final_message.replace('{job_title}', context['job_title'])
+            final_message = final_message.replace('{company_name}', context['company_name'])
+
+            # Send email
+            send_mail(
+                final_subject,
+                final_message,
+                settings.DEFAULT_FROM_EMAIL,
+                [application.applicant.user.email],
+                fail_silently=False,
+            )
+
+            # Update application status to 'accepted'
+            application.status = 'accepted'
+            application_review = ApplicationReview.objects.create(
+                application=application,
+                reviewer=application.job.employer
+            )
+            
+            application_review.save()
+            application.save()
+
+            # Notify applicant
+            create_notification(
+                recipient=application.applicant.user,
+                message=f"Your application for {application.job.title} was accepted! Check your email for details.",
+                url=reverse("jobs:view_application_detail", args=[application.id]),
+            )
+
+            messages.success(request, 'Acceptance email sent successfully!')
+            return redirect('jobs:view_applications', job_id=application.job.id)
+
+        except Exception as e:
+            messages.error(request, f'Error sending email: {str(e)}')
+            return render(request, 'app/employer/compose-acceptance-email.html', {
+                'application': application,
+                'subject': subject,
+                'message': message_content,
+                **context
+            })
+
+    else:
+        # GET request - EMPTY FORM (no default messaging)
+        return render(request, 'app/employer/compose-acceptance-email.html', {
+            'application': application,
+            'subject': '',  # Empty subject
+            'message': '',  # Empty message
+            **context
+        })
+
+    
+def send_acceptance_email(application):
+    subject = f'Your application for {application.job.title} at {application.job.employer.company_name}'
+    message = (
+        f'Dear {application.applicant.full_name},\n\n'
+        f'We are pleased to inform you that your application for the position of {application.job.title} at {application.job.employer.company_name} has been accepted.\n\n'
+        'Please reply to this email to discuss the next steps.\n\n'
+        'Best regards,\n'
+        f'{application.job.employer.company_name}'
+    )
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [application.applicant.user.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f'Error sending acceptance email: {e}')
+        return False
 
 @login_required
 def view_applications(request, job_id):
@@ -449,6 +579,32 @@ def view_applications(request, job_id):
     return render(request, 'app/employer/view-applications.html', {
         'job': job,
         'applications': applications,
+    })
+
+@login_required
+def view_applications(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id, employer=request.user.employerprofile)
+    applications = job.applications.select_related('applicant__user').all()
+    
+    # Calculate real statistics
+    total_applications = applications.count()
+    pending_count = applications.filter(status='pending').count()
+    shortlisted_count = applications.filter(status='shortlisted').count()
+    interview_count = applications.filter(status='interview').count()
+    offer_count = applications.filter(status='offer').count()
+    hired_count = applications.filter(status='hired').count()
+    rejected_count = applications.filter(status='rejected').count()
+    
+    return render(request, 'app/employer/view-applications.html', {
+        'job': job,
+        'applications': applications,
+        'total_applications': total_applications,
+        'pending_count': pending_count,
+        'shortlisted_count': shortlisted_count,
+        'interview_count': interview_count,
+        'offer_count': offer_count,
+        'hired_count': hired_count,
+        'rejected_count': rejected_count,
     })
 
 
@@ -674,46 +830,35 @@ def all_jobs(request):
         if salary_max:
             all_jobs = all_jobs.filter(salary__lte=salary_max)
 
-        # --- Skill-Based Recommendations (Sidebar) ---
+        # --- Skill-Based Recommendations
         recommended_jobs = None
         if profile.skills:
-            seeker_skills = [s.strip().lower() for s in profile.skills.split(",") if s.strip()]
-            skill_query = Q()
-            for skill in seeker_skills:
-                skill_query |= (
-                    Q(skills_required__icontains=f" {skill} ") |
-                    Q(skills_required__icontains=f",{skill},") |
-                    Q(skills_required__istartswith=f"{skill},") |
-                    Q(skills_required__iendswith=f",{skill}")
-                )
-            # recommended_jobs = JobPosting.objects.filter(
-            #     skill_query,
-            #     deadline__gte=timezone.now().date()
-            # ).exclude(
-            #     applications__applicant=profile
-            # ).annotate(
-            #     match_score=Count(
-            #         Case(
-            #             *[When(skills_required__icontains=skill, then=1) for skill in seeker_skills],
-            #             output_field=IntegerField()
-            #         )
-            #     )
-            # ).order_by('-match_score', '-posted_date')[:5]
-            recommended_jobs = JobPosting.objects.filter(skill_query).annotate(
-                match_score=Count(
-                    Case(
-                        *[When(skills_required__icontains=skill, then=1) for skill in seeker_skills],
-                        output_field=IntegerField()
-                    )
-                )
-            ).order_by('-match_score', '-posted_date')
+            seeker_skills = set(s.strip().lower() for s in profile.skills.split(",") if s.strip())
+            jobs_with_scores = []
+            for job in all_jobs:
+                job_skills = set(s.strip().lower() for s in job.skills_required.split(",") if s.strip())
+                matches = seeker_skills & job_skills
+                match_score = len(matches)
+                # Calculate percent match (avoid division by zero)
+                percent_match = int(100 * match_score / max(len(job_skills), 1))
+                job.match_score = percent_match  # Attach to job object
+                jobs_with_scores.append((job, percent_match))
+            # Sort jobs by percent_match and posted_date
+            jobs_with_scores.sort(key=lambda x: (x[1], x[0].posted_date), reverse=True)
+            recommended_jobs = [job for job, score in jobs_with_scores if score > 0]
+        else:
+            recommended_jobs = all_jobs.annotate(
+            application_count=Count('applications')
+            ).order_by('-application_count', '-posted_date')
 
-            
-            saved_job_ids = SavedJob.objects.filter(
-                job_saver=profile,
-                job__in=recommended_jobs
+
+
+        saved_job_ids = SavedJob.objects.filter(
+            job_saver=profile,
+            job__in=recommended_jobs
             ).values_list('job_id', flat=True)
-            context['saved_job_ids'] = list(saved_job_ids)
+
+
 
 
         # Pagination
@@ -731,7 +876,8 @@ def all_jobs(request):
             'salary_min': salary_min,
             'salary_max': salary_max,
             'job_types': JobType.choices,
-            'profile_type': profile_type
+            'profile_type': profile_type,
+            'saved_job_ids': list(saved_job_ids) if recommended_jobs else [],
         }
 
     else:
@@ -754,70 +900,120 @@ def all_applications(request):
     
  
 
+
+
 def all_applications(request):
     user = request.user
-    if not user or user is None:
+    if not user or not user.is_authenticated:
         messages.error(request, 'Session expired. Please log in again.')
         return redirect('users:login')
 
-    # Get all applications for jobs posted by this employer
-    applications = JobApplication.objects.filter(
-        job__employer=user.employerprofile
-    ).order_by('-application_date')
-    
-    # Get search query
-    search_query = request.GET.get('q', '')
-    
-    # Get filters from URL parameters
-    applicant_name = request.GET.get('applicant', '')
-    application_date = request.GET.get('application_date', '')
-    status = request.GET.get('status', '')
-    job_title = request.GET.get('job_title', '')
-    
-    # Apply filters
-    if search_query:
-        applications = applications.filter(
-            Q(applicant__user__username__icontains=search_query) |
-            Q(cover_letter__icontains=search_query) |
-            Q(job__title__icontains=search_query)
-        )
-    
-    if applicant_name:
-        applications = applications.filter(
-            Q(applicant__full_name__icontains=applicant_name) |
-            Q(applicant__user__first_name__icontains=applicant_name) |
-            Q(applicant__user__last_name__icontains=applicant_name) 
-        )
-    
-    if application_date:
-        try:
-            # Assuming date is in YYYY-MM-DD format
-            date_obj = datetime.strptime(application_date, '%Y-%m-%d').date()
-            applications = applications.filter(application_date__date=date_obj)
-        except ValueError:
-            pass  # Handle invalid date format if needed
-    
-    if status:
-        applications = applications.filter(status=status)
-    
-    if job_title:
-        applications = applications.filter(job__title__icontains=job_title)
-    
+    profile, profile_type = get_user_profile(user)
+
+    applications = JobApplication.objects.all()
+
+    context = {}
+
+    if profile_type == 'employer':
+        applications = applications.filter(job__employer=user.employerprofile).order_by('-application_date')
+
+        # Employer-specific filters
+        search_query = request.GET.get('q', '')
+        applicant_name = request.GET.get('applicant', '')
+        application_date = request.GET.get('application_date', '')
+        status = request.GET.get('status', '')
+        job_title = request.GET.get('job_title', '')
+
+        if search_query:
+            applications = applications.filter(
+                Q(applicant__user__username__icontains=search_query) |
+                Q(cover_letter__icontains=search_query) |
+                Q(job__title__icontains=search_query)
+            )
+        if applicant_name:
+            applications = applications.filter(
+                Q(applicant__full_name__icontains=applicant_name) |
+                Q(applicant__user__first_name__icontains=applicant_name) |
+                Q(applicant__user__last_name__icontains=applicant_name)
+            )
+        if application_date:
+            try:
+                date_obj = datetime.strptime(application_date, '%Y-%m-%d').date()
+                applications = applications.filter(application_date__date=date_obj)
+            except ValueError:
+                pass
+        if status:
+            applications = applications.filter(status=status)
+        if job_title:
+            applications = applications.filter(job__title__icontains=job_title)
+
+        context.update({
+            'search_query': search_query,
+            'applicant_name': applicant_name,
+            'application_date': application_date,
+            'status': status,
+            'job_title': job_title,
+            'status_choices': Status.choices,
+        })
+
+    elif profile_type == 'seeker':
+        applications = applications.filter(applicant=user.seekerprofile).select_related('job').order_by('-application_date')
+
+        # Filters
+        search_query = request.GET.get('q', '')
+        job_title = request.GET.get('job_title', '')
+        location = request.GET.get('location', '')
+        status = request.GET.get('status', '')
+        application_date = request.GET.get('application_date', '')
+
+        if search_query:
+            applications = applications.filter(
+                Q(job__title__icontains=search_query) |
+                Q(job__location__icontains=search_query) |
+                Q(job__skills_required__icontains=search_query)
+            )
+
+        if job_title:
+            applications = applications.filter(job__title__icontains=job_title)
+
+        if location:
+            applications = applications.filter(job__location__icontains=location)
+
+        if status:
+            applications = applications.filter(status=status)
+
+        if application_date:
+            try:
+                date_obj = datetime.strptime(application_date, '%Y-%m-%d').date()
+                applications = applications.filter(application_date__date=date_obj)
+            except ValueError:
+                pass
+
+        context.update({
+            'search_query': search_query,
+            'job_title': job_title,
+            'location': location,
+            'status': status,
+            'application_date': application_date,
+            'status_choices': Status.choices,
+        })
+
     # Pagination
-    paginator = Paginator(applications, 10)  # Show 10 applications per page
+    paginator = Paginator(applications, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    context = {
-        'applications': page_obj,
-        'search_query': search_query,
-        'applicant_name': applicant_name,
-        'application_date': application_date,
-        'status': status,
-        'job_title': job_title,
-        'status_choices': Status.choices,  # Assuming Status is an inner class
-    }
+
+    context['applications'] = page_obj
+    context['profile_type'] = profile_type
+
     return render(request, 'app/all-applications.html', context)
+
+
+
+
+
+
+
 
 
 @login_required

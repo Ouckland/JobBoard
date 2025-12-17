@@ -1,46 +1,49 @@
-/* Base Styles */
+/* ===== MOBILE FIRST - USING LOGIN STYLING ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  --bg-primary: radial-gradient(ellipse at 50% 30%, #181a1f 0%, #0a0a0a 80%, #000 100%);
-  --surface-1: rgba(10, 10, 10, 0.96);
-  --text-primary: #fff;
-  --text-secondary: #aaa;
-  --error-color: #ff4a4a;
-  --error-bg: rgba(255, 74, 74, 0.1);
-  --border-color: #222;
-  --highlight-color: #fff;
   --header-height: 60px;
+  --error-color: red;
+  --error-bg: rgba(249, 24, 128, 0.05);
+  --border-color: #222;
+  --text-primary: #fff;
+  --text-secondary: #71767b;
 }
 
 body, html {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Container Styles */
+/* Main Container - Matching Login Style */
 .delete-account-container {
-  background: var(--surface-1);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px 0 #000, 
-              0 0 0 1.5px var(--error-color) inset;
-  padding: 2.5rem 2rem;
-  border: 1.5px solid var(--error-color);
-  max-width: 500px;
   width: 100%;
-  margin: calc(var(--header-height) + 5vh) auto 5vh;
-  text-align: center;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  animation: pulseWarning 3s infinite;
+  min-height: 100vh;
+  padding: 1rem 0.5rem 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #000;
+  margin-top: var(--header-height);
+  box-sizing: border-box;
 }
 
-@keyframes pulseWarning {
-  0% { box-shadow: 0 0 0 0 rgba(255, 74, 74, 0.4); }
-  70% { box-shadow: 0 0 0 15px rgba(255, 74, 74, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 74, 74, 0); }
+.delete-account-container > div {
+  width: 100%;
+  max-width: 400px;
+  background: #000;
+  padding: 2rem 1.5rem;
+  border-radius: 0;
+  box-shadow: none;
+  margin-top: 2.5rem;
+  border: 1px solid var(--error-color);
+  border-radius: 12px;
 }
 
 /* Warning Header */
@@ -49,6 +52,7 @@ body, html {
   flex-direction: column;
   align-items: center;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .warning-icon {
@@ -60,145 +64,327 @@ body, html {
 
 .delete-account-container h2 {
   font-size: 1.8rem;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
   color: var(--error-color);
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  text-align: center;
+  letter-spacing: -0.5px;
 }
 
 .warning-text {
   color: var(--text-primary);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.5;
   margin-bottom: 2rem;
-  padding: 0 1rem;
+  text-align: center;
+  padding: 0;
 }
 
-/* Form Elements */
+/* Form Styles - Matching Login */
 .delete-account-form {
+  
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+  width: 100%;
+  text-align: left;
 }
 
 .form-group label {
+  display: block;
   margin-bottom: 0.8rem;
-  font-size: 0.95rem;
-  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e7e9ea;
+  line-height: 1.4;
 }
 
 .form-group input {
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
-  border: 1.5px solid var(--error-color);
-  background: rgba(30, 0, 0, 0.2);
-  color: var(--text-primary);
-  font-size: 1rem;
   width: 100%;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--error-color);
+  background: var(--error-bg);
+  color: #fff;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  min-height: 52px;
+  transition: border-color 0.2s;
   box-sizing: border-box;
   text-align: center;
-  font-weight: bold;
-  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
 .form-group input:focus {
-  outline: none;
-  border-color: var(--highlight-color);
-  box-shadow: 0 0 0 3px rgba(255, 74, 74, 0.3);
+  border-color: #fff;
+  background: var(--error-bg);
 }
 
-/* Buttons */
+.form-group input::placeholder {
+  color: #71767b;
+  font-weight: normal;
+}
+
+/* Button Group */
 .button-group {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
+/* Delete Button */
 .delete-btn {
+  width: 100%;
   padding: 1rem;
   background: var(--error-color);
-  color: white;
-  border: none;
+  color: #fff;
+  font-weight: 700;
   border-radius: 12px;
-  font-weight: 600;
-  font-size: 1rem;
+  border: none;
+  font-size: 1.1rem;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
+  transition: background 0.2s, transform 0.2s;
 }
 
 .delete-btn:hover {
-  background: #ff2e2e;
-  box-shadow: 0 0 15px rgba(255, 74, 74, 0.5);
-  transform: translateY(-2px);
+  background: #e01674;
 }
 
 .delete-btn:active {
-  transform: translateY(0);
+  background: #c91467;
+  transform: scale(0.98);
 }
 
+.delete-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Cancel Button */
 .cancel-btn {
-  padding: 0.8rem;
-  color: var(--text-primary);
+  width: 100%;
+  padding: 1rem;
   background: transparent;
-  border: 1.5px solid var(--border-color);
+  color: #e7e9ea;
+  font-weight: 600;
   border-radius: 12px;
-  font-weight: 500;
-  font-size: 0.95rem;
-  text-decoration: none;
+  border: 1px solid var(--border-color);
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
+  min-height: 48px;
+  text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s, background 0.2s;
 }
 
 .cancel-btn:hover {
-  border-color: var(--highlight-color);
+  border-color: #fff;
   background: rgba(255, 255, 255, 0.05);
 }
 
+.cancel-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(0.98);
+}
+
+.cancel-btn:focus-visible {
+  outline: 2px solid #1d9bf0;
+  outline-offset: 2px;
+}
+
 /* Icons */
-.trash-icon {
+.trash-icon,
+.arrow-icon {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
-.arrow-icon {
-  width: 18px;
-  height: 18px;
-}
+/* ===== RESPONSIVE BREAKPOINTS ===== */
 
-/* Responsive */
-@media (max-width: 600px) {
+/* --- SMALL DEVICES (up to 375px) --- */
+@media (max-width: 375px) {
   .delete-account-container {
-    max-width: 95vw;
+    padding: 0.5rem 0.3rem 0 0.3rem;
+  }
+  
+  .delete-account-container > div {
     padding: 1.5rem 1rem;
-    margin: calc(var(--header-height) + 2vh) auto 2vh;
+    margin-top: 1.5rem;
   }
   
   .delete-account-container h2 {
     font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .warning-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0.8rem;
   }
   
   .warning-text {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
   }
   
-  .delete-btn, .cancel-btn {
-    padding: 0.8rem;
-    font-size: 0.95rem;
+  .delete-account-form {
+    gap: 1.2rem;
   }
+  
+  .form-group input {
+    padding: 0.8rem;
+    min-height: 48px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .delete-btn,
+  .cancel-btn {
+    padding: 0.9rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+  
+  .trash-icon,
+  .arrow-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* --- LANDSCAPE MODE --- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .delete-account-container {
+    padding-top: 0.5rem;
+    justify-content: flex-start;
+    min-height: auto;
+  }
+  
+  .delete-account-container > div {
+    margin-top: 1rem;
+    padding: 1.5rem 1.5rem;
+  }
+  
+  .warning-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .delete-account-container h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .warning-text {
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .delete-account-form {
+    gap: 1rem;
+  }
+}
+
+/* --- TABLET & UP (600px+) --- */
+@media (min-width: 600px) {
+  .delete-account-container {
+    max-width: 450px;
+    margin: var(--header-height) auto 0 auto;
+    min-height: calc(100vh - var(--header-height));
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .delete-account-container > div {
+    max-width: 450px;
+    border-radius: 18px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    margin-top: 0;
+    border-width: 1.5px;
+  }
+  
+  .delete-account-container h2 {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .warning-text {
+    font-size: 1.05rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .button-group {
+    gap: 1.2rem;
+  }
+}
+
+/* --- DESKTOP (900px+) --- */
+@media (min-width: 900px) {
+  .delete-account-container {
+    max-width: 480px;
+    min-height: calc(100vh - var(--header-height));
+    margin: var(--header-height) auto;
+  }
+  
+  .delete-account-container > div {
+    max-width: 480px;
+    padding: 3rem 2.5rem;
+  }
+  
+  .delete-account-container h2 {
+    font-size: 2.1rem;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .delete-account-container {
+    min-height: -webkit-fill-available;
+  }
+  
+  input {
+    font-size: 16px !important; /* Prevents zoom on focus */
+  }
+}
+
+/* Prevent horizontal scrolling */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Focus styles for accessibility */
+.form-group input:focus {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Button icon alignment */
+.delete-btn,
+.cancel-btn {
+  line-height: 1;
+}
+
+/* Text selection */
+.warning-text strong {
+  color: var(--error-color);
+  font-weight: 700;
 }
