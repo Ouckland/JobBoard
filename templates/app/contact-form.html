@@ -1,0 +1,22 @@
+{% extends "partials/base.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto;">
+    <h2>Contact {{ profile.full_name|default:profile.company_name }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label>Name:</label><br>
+            <input type="text" name="name" required style="width: 100%;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Email:</label><br>
+            <input type="email" name="email" required style="width: 100%;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label>Message:</label><br>
+            <textarea name="message" rows="6" required style="width: 100%;"></textarea>
+        </div>
+        <button type="submit" style="background-color: #007bff; color: white; padding: 0.6rem 1.2rem; border: none;">Send Message</button>
+    </form>
+</div>
+{% endblock %}

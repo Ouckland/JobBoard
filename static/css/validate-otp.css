@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  /* Deep dark space gradient background */
+  background: radial-gradient(ellipse at 50% 30%, #181a1f 0%, #0a0a0a 80%, #000 100%);
+  color: #fff;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+.container {
+
+  background: rgba(10, 10, 10, 0.96);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px 0 #000, 0 0 0 1.5px #fff1 inset;
+  padding: 2.5rem 2rem 2rem 2rem;
+  color: #fff;
+  border: 1.5px solid #222;
+  max-width: 420px;
+  width: 100%;
+  margin: 10vh auto 0 auto;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px #000a;
+}
+
+p {
+  color: #fff;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+
+.otp-input-group {
+  display: flex;
+  justify-content: center;
+  gap: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.otp-input {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  border: 2px solid #fff;
+  background: #000;
+  color: #fff;
+  font-size: 2rem;
+  text-align: center;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  outline: none;
+  box-shadow: 0 2px 12px #000a;
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+  caret-color: #fff;
+  letter-spacing: 0.2em;
+}
+
+.otp-input:focus {
+  border: 2.5px solid #fff;
+  background: #181a1f;
+  box-shadow: 0 0 12px #fff8;
+}
+
+.form-error {
+  color: #ff6b6b;
+  background: rgba(30, 0, 0, 0.15);
+  border-left: 3px solid #ff6b6b;
+  padding: 0.4em 0.8em;
+  margin: 0.7em 0 0.3em 0;
+  font-size: 0.97em;
+  font-weight: 500;
+  border-radius: 6px;
+  letter-spacing: 0.2px;
+  text-align: left;
+  box-shadow: 0 2px 8px #0002;
+}
+
+button[type="submit"] {
+  margin-top: 0.5rem;
+  padding: 0.8rem 0;
+  width: 100%;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  border-radius: 12px;
+  border: none;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  box-shadow: 0 0 18px #fff2, 0 0 32px #fff1;
+  cursor: pointer;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+button[type="submit"]:hover {
+  background: #181a1f;
+  color: #fff;
+  box-shadow: 0 0 40px #fff, 0 0 80px #fff;
+  border: 1.5px solid #fff;
+}
+
+a {
+  display: block;
+  margin-top: 1.2rem;
+  color: #fff;
+  text-decoration: underline;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #ccc;
+}
+
+@media (max-width: 900px) {
+  .container {
+    max-width: 90vw;
+    padding: 1.5rem 1rem 1.5rem 1rem;
+  }
+  .otp-input {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+  }
+  h2 {
+    font-size: 1.3rem;
+  }
+  .otp-input {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1.3rem;
+  }
+  button[type="submit"] {
+    font-size: 1rem;
+    padding: 0.7rem 0;
+  }
+}

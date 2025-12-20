@@ -1,0 +1,9 @@
+{% extends "partials/base.html" %}
+{% block content %}
+    <div>ERROR 403 - FORBIDDEN</div>
+    {% if messages %}
+        {% for message in  messages%}
+        <p class='message-{{ message.tags }}'>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+{% endblock content %}  

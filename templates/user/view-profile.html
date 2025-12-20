@@ -1,0 +1,363 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/view-profile.css' %}">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<div class="profile-page">
+  <!-- Sidebar Navigation -->
+  <aside class="profile-sidebar">
+    <h3>My Account</h3>
+    <ul>
+      <li><a href="{% url 'users:view_profile' %}">Profile Overview</a></li>
+      <li><a href="{% url 'users:account_settings' %}">Account Settings</a></li>
+      {% if profile_type == 'seeker' %}
+        <li><a href="{% url 'jobs:saved_jobs' %}">Saved Jobs</a></li>
+      {% elif profile_type == 'employer' %}
+        <li><a href="#">Posted Jobs</a></li>
+      {% endif %}
+    </ul>
+  </aside>
+
+  <!-- Main Profile Content -->
+  <main class="profile-content">
+    <div class="profile-progress">
+      <label>Profile Completion: {{ completion_percentage }}%</label>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ completion_percentage }}%;"></div>
+      </div>
+    </div>
+
+    <h2>Profile Information</h2>
+
+    {% if profile_type == 'seeker' %}
+      <form action="{% url 'users:update_profile_picture' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="profile-pic-wrapper">
+          {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+          {% else %}
+            <img src="{% static 'images/default-profile.png' %}" alt="Upload" class="profile-pic">
+          {% endif %}
+          <label for="profile-upload" class="edit-icon-wrapper">
+            <img src="{% static 'images/photo.png' %}" alt="Camera Icon" class="edit-icon">
+          </label>
+          <input type="file" name="profile_picture" id="profile-upload" hidden onchange="this.form.submit();">
+        </div>
+      </form>
+
+      <div class="profile-block">
+        <!-- Basic Info Section -->
+        <div class="info-section">
+          <div class="info-field">
+            <span class="info-label">Full Name:</span>
+            <span class="info-value">{{ profile.full_name }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">Account Type:</span>
+            <span class="info-value">{{ profile.get_account_type_display }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">Country:</span>
+            <span class="info-value">{{ profile.country }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">State:</span>
+            <span class="info-value">{{ profile.state }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">Job Type Preference:</span>
+            <span class="info-value">{{ profile.get_job_type_display }}</span>
+          </div>
+         <div class="info-field copy-field">
+          <span class="info-label">Phone Number:</span>
+          <div class="copy-container">
+            <span class="info-value">{{ profile.phone_number }}</span>
+            <button class="copy-btn" title="Copy to clipboard">
+              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="copy-tooltip">Copied!</span>
+          </div>
+        </div>
+        </div>
+
+        <!-- Text Area Fields -->
+        <div class="text-area-section">
+          <div class="text-area-field">
+            <label>Bio</label>
+            <div class="text-area-content">{{ profile.bio|default:"Not specified" }}</div>
+          </div>
+          
+          <div class="text-area-field">
+            <label>Experience</label>
+            <div class="text-area-content">{{ profile.experience|default:"Not specified" }}</div>
+          </div>
+          
+          <div class="text-area-field">
+            <label>Education</label>
+            <div class="text-area-content">{{ profile.education|default:"Not specified" }}</div>
+          </div>
+        </div>
+          
+          <div class="text-area-field">
+            <label>Certifications</label>
+            <div class="text-area-content">{{ profile.certifications|default:"Not specified" }}</div>
+          </div>
+        </div>
+
+<div class="link-buttons">
+    {% if profile.linkedin %}
+      <div class="link-button-wrapper">
+        <a href="{{ profile.linkedin }}" class="link-button" target="_blank">
+          <span class="link-icon">🔗</span>
+          LinkedIn Profile
+        </a>
+        <button class="copy-link-btn" onclick="copyLinkToClipboard(this, '{{ profile.linkedin }}')">
+          <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="copy-tooltip">Copy Link</span>
+        </button>
+      </div>
+    {% endif %}
+    
+    {% if profile.portfolio %}
+      <div class="link-button-wrapper">
+        <a href="{{ profile.portfolio }}" class="link-button" target="_blank">
+          <span class="link-icon">🖥️</span>
+          Portfolio
+        </a>
+        <button class="copy-link-btn" onclick="copyLinkToClipboard(this, '{{ profile.portfolio }}')">
+          <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="copy-tooltip">Copy Link</span>
+        </button>
+      </div>
+    {% endif %}
+    
+    {% if profile.resume %}
+      <div class="link-button-wrapper">
+        <a href="{{ profile.resume.url }}" class="link-button" target="_blank">
+          <span class="link-icon">📄</span>
+          Download Resume
+        </a>
+        <button class="copy-link-btn" onclick="copyLinkToClipboard(this, '{{ profile.resume.url }}')">
+          <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="copy-tooltip">Copy Link</span>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+
+
+        <!-- Skills Section -->
+<div class="skills-section">
+  <div class="skills-header">
+    <svg class="skills-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 3V5M15 3V5M9 19V21M15 19V21M5 9H3M5 15H3M21 9H19M21 15H19M7 19H17C18.1046 19 19 18.1046 19 17V7C19 5.89543 18.1046 5 17 5H7C5.89543 5 5 5.89543 5 7V17C5 18.1046 5.89543 19 7 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h3 class="skills-label">Skills & Expertise</h3>
+  </div>
+  <div class="skill-tags-container">
+    {% for skill in profile.skills|display_skills %}
+      <div class="skill-tag">
+        {{ skill }}
+        <span class="tag-dot"></span>
+      </div>
+    {% empty %}
+      <div class="no-skills-message">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>No skills added yet</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+          
+
+    {% elif profile_type == 'employer' %}
+      <form action="{% url 'users:update_profile_picture' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="profile-pic-wrapper">
+          {% if profile.company_logo %}
+            <img src="{{ profile.company_logo.url }}" alt="Company Logo" class="profile-pic">
+          {% else %}
+            <img src="{% static 'images/default-company.png' %}" alt="Upload" class="profile-pic">
+          {% endif %}
+          <label for="logo-upload" class="edit-icon-wrapper">
+            <img src="{% static 'images/photo.png' %}" alt="Camera Icon" class="edit-icon">
+          </label>
+          <input type="file" name="profile_picture" id="logo-upload" hidden onchange="this.form.submit();">
+        </div>
+      </form>
+
+      <div class="profile-block">
+        <!-- Basic Info Section -->
+        <div class="info-section">
+          <div class="info-field">
+            <span class="info-label">Company Name:</span>
+            <span class="info-value">{{ profile.company_name }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">Account Type:</span>
+            <span class="info-value">{{ profile.get_account_type_display }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">Country:</span>
+            <span class="info-value">{{ profile.country }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">State:</span>
+            <span class="info-value">{{ profile.state }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">Industry:</span>
+            <span class="info-value">{{ profile.industry }}</span>
+          </div>
+          <div class="info-field">
+            <span class="info-label">Company Size:</span>
+            <span class="info-value">{{ profile.company_size }}</span>
+          </div>
+        <div class="info-field copy-field">
+          <span class="info-label">Contact Number:</span>
+          <div class="copy-container">
+            <span class="info-value">{{ profile.contact_number }}</span>
+            <button class="copy-btn" title="Copy to clipboard">
+              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="copy-tooltip">Copied!</span>
+          </div>
+        </div>
+      </div>
+
+        <!-- Text Area Fields -->
+        <div class="text-area-section">
+          <div class="text-area-field">
+            <label>Description</label>
+            <div class="text-area-content">{{ profile.description|default:"Not specified" }}</div>
+          </div>
+          
+          <div class="text-area-field">
+            <label>About Company</label>
+            <div class="text-area-content">{{ profile.about_company|default:"Not specified" }}</div>
+          </div>
+        </div>
+
+        <!-- Link Buttons -->
+        <div class="link-buttons">
+         {% if profile.company_website %}
+      <div class="link-button-wrapper">
+        <a href="{{ profile.company_website }}" class="link-button" target="_blank">
+          <span class="link-icon">🔗</span>
+          Company Website
+        </a>
+        <button class="copy-link-btn" onclick="copyLinkToClipboard(this, '{{ profile.company_website }}')">
+          <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="copy-tooltip">Copy Link</span>
+        </button>
+      </div>
+    {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="edit-profile-btn">
+      <a href="{% url 'users:update_profile' %}" class="edit-btn">Edit Profile</a>
+    </div>
+  </main>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const copyButtons = document.querySelectorAll('.copy-btn');
+  
+  copyButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const container = this.closest('.copy-container');
+      const textToCopy = container.querySelector('.info-value').textContent.trim();
+      const tooltip = container.querySelector('.copy-tooltip');
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        // Show tooltip
+        tooltip.classList.add('active');
+        
+        // Hide after 2 seconds
+        setTimeout(() => {
+          tooltip.classList.remove('active');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    });
+  });
+});
+  function copyLinkToClipboard(button, link) {
+  // Modern clipboard API
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link).then(() => {
+      showLinkCopiedFeedback(button);
+    }).catch(err => {
+      showLinkCopyError(button);
+    });
+  } 
+  // Fallback for older browsers
+  else {
+    const textarea = document.createElement('textarea');
+    textarea.value = link;
+    textarea.style.position = 'fixed';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+      document.execCommand('copy');
+      showLinkCopiedFeedback(button);
+    } catch (err) {
+      showLinkCopyError(button);
+    }
+    
+    document.body.removeChild(textarea);
+  }
+}
+
+function showLinkCopiedFeedback(button) {
+  const tooltip = button.querySelector('.copy-tooltip');
+  tooltip.textContent = 'Copied!';
+  button.classList.add('link-copied');
+  
+  setTimeout(() => {
+    tooltip.textContent = 'Copy Link';
+    button.classList.remove('link-copied');
+  }, 2000);
+}
+
+function showLinkCopyError(button) {
+  const tooltip = button.querySelector('.copy-tooltip');
+  tooltip.textContent = 'Failed!';
+  
+  setTimeout(() => {
+    tooltip.textContent = 'Copy Link';
+  }, 2000);
+}
+
+</script>
+
+{% endblock content %}

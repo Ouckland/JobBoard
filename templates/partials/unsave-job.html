@@ -1,0 +1,302 @@
+<div class="save-btn-container">
+
+    <form class="unsave-job-form" action="{% url 'jobs:unsave_job' job.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="glass-save-btn saved" 
+                data-save-url="{% url 'jobs:save_job' job.id %}" 
+                data-job-id="{{ job.id }}"
+                aria-label="Unsave this job">
+            <span class="btn-content">
+                <span class="btn-icon"><i class="fas fa-bookmark"></i></span>
+                <span class="btn-text">Saved</span>
+            </span>
+            <span class="btn-loader"><i class="fas fa-spinner fa-spin"></i></span>
+        </button>
+    </form>
+</div>
+
+<style>
+/* ===== Base Button Styles ===== */
+.save-btn-container {
+    display: inline-block;
+    position: relative;
+    margin-right: 1rem;
+}
+
+.glass-save-btn {
+    position: relative;
+    padding: 0.7rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: rgba(74, 222, 128, 0.15);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    color: var(--success);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    height: 42px;
+}
+
+.glass-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 222, 128, 0.2);
+}
+
+.btn-content {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.3s ease;
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+.btn-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+/* Loading State */
+.glass-save-btn.loading .btn-content {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.glass-save-btn.loading .btn-loader {
+    opacity: 1;
+}
+
+/* ===== Toast Notifications ===== */
+.toast-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.toast {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border-left: 4px solid var(--success);
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.error {
+    border-left-color: var(--error);
+    color: var(--error);
+}
+
+.toast i {
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .glass-save-btn {
+        padding: 0.6rem 1.2rem;
+        min-width: 110px;
+        height: 38px;
+    }
+    
+    .btn-text {
+        display: none;
+    }
+    
+    .btn-icon {
+        font-size: 1.2rem;
+    }
+}
+</style>
+
+<script>
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up toast container if it doesn't exist
+    if (!document.querySelector('.toast-container')) {
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Initialize all save/unsave buttons
+    initSaveButtons();
+});
+
+// Initialize event listeners
+function initSaveButtons() {
+    // Use event delegation for dynamic elements
+    document.body.addEventListener('submit', function(e) {
+        const form = e.target;
+        
+        if (form.classList.contains('unsave-job-form')) {
+            e.preventDefault();
+            handleUnsaveJob(form);
+        }
+    });
+}
+
+// Handle unsave action
+function handleUnsaveJob(form) {
+    const button = form.querySelector('button');
+    if (!button) return;
+    
+    const jobId = button.dataset.jobId;
+    const saveUrl = button.dataset.saveUrl;
+    const csrfToken = getCSRFToken(form);
+    
+    // Validate required data
+    if (!jobId || !saveUrl || !csrfToken) {
+        showToast('Missing required data', 'error');
+        return;
+    }
+    
+    // Show loading state
+    setButtonLoading(button, true);
+    
+    // Make AJAX request
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(handleResponse)
+    .then(data => {
+        if (data.status === 'success') {
+            replaceWithSaveButton(form, saveUrl, jobId);
+            showToast(data.message || 'Job removed from saved list', 'success');
+        } else {
+            showToast(data.message || 'Error unsaving job', data.status || 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Unsave job error:', error);
+        showToast('Failed to unsave job', 'error');
+    })
+    .finally(() => {
+        setButtonLoading(button, false);
+    });
+}
+
+// Replace unsave button with save button
+function replaceWithSaveButton(form, saveUrl, jobId) {
+    const container = form.closest('.save-btn-container') || form.parentNode;
+    container.innerHTML = `
+        <form class="save-job-form" action="${saveUrl}" method="post">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken(form)}">
+            <button type="submit" class="glass-save-btn" 
+                    data-unsave-url="${form.action}" 
+                    data-job-id="${jobId}"
+                    aria-label="Save this job">
+                <span class="btn-content">
+                    <span class="btn-icon"><i class="far fa-bookmark"></i></span>
+                    <span class="btn-text">Save Job</span>
+                </span>
+                <span class="btn-loader"><i class="fas fa-spinner fa-spin"></i></span>
+            </button>
+        </form>
+    `;
+}
+
+// ===== Shared Utility Functions =====
+// (These would be in a shared JS file in production)
+
+function handleResponse(response) {
+    if (!response.ok) {
+        return response.json().then(err => {
+            throw new Error(err.message || 'Server error');
+        });
+    }
+    return response.json();
+}
+
+function getCSRFToken(form) {
+    return form.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+}
+
+function setButtonLoading(button, isLoading) {
+    if (isLoading) {
+        button.classList.add('loading');
+        button.disabled = true;
+    } else {
+        button.classList.remove('loading');
+        button.disabled = false;
+    }
+}
+
+const toastQueue = [];
+function showToast(message, type = 'success') {
+    const toastContainer = document.querySelector('.toast-container') || document.body;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <i class="fas fa-${getToastIcon(type)}"></i>
+        <span>${message}</span>
+    `;
+    
+    toastQueue.push(toast);
+    toastContainer.appendChild(toast);
+    
+    if (toastQueue.length === 1) {
+        displayNextToast();
+    }
+}
+
+function displayNextToast() {
+    if (toastQueue.length === 0) return;
+    
+    const toast = toastQueue[0];
+    setTimeout(() => {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+                toastQueue.shift();
+                displayNextToast();
+            }, 300);
+        }, 3000);
+    }, 10);
+}
+
+function getToastIcon(type) {
+    const icons = {
+        'success': 'check-circle',
+        'error': 'times-circle',
+        'info': 'info-circle'
+    };
+    return icons[type] || 'info-circle';
+}
+</script>

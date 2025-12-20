@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(circle at 60% 20%, #111216 0%, #050509 60%, #000 100%);
+  color: #f0f0f0;
+  position: relative;
+  top: 100px;
+}
+
+.application-detail-section {
+  max-width: 700px;
+  margin: 2rem auto;
+  background: rgba(20, 20, 28, 0.85);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px #000a, 0 0 0 1.5px #ffffff22 inset;
+  backdrop-filter: blur(16px);
+  position: relative;
+}
+
+.application-detail-section h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  color: #fff;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.application-carousel {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.application-slide {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.application-slide.active {
+  display: flex;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cover-text {
+  white-space: pre-line;
+  background: #1a1b23;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.carousel-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.6rem;
+  transition: transform 0.3s ease;
+}
+
+.carousel-btn img {
+  width: 28px;
+  height: 28px;
+  filter: invert(100%);
+}
+
+.carousel-btn:hover {
+  transform: scale(1.1);
+}
+
+.slide-indicators {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  margin: 0 6px;
+  background-color: #666;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background 0.3s;
+}
+
+.dot.active {
+  background-color: #fff;
+}
+
+.download-btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 0.5rem;
+  text-decoration: none;
+  border: 1px solid #444;
+  transition: all 0.3s ease;
+}
+
+.download-btn:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 12px #fff8;
+}
+
+.status {
+  font-weight: bold;
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+}
+
+.status.accepted {
+  background: #4caf50;
+  color: #fff;
+}
+
+.status.rejected {
+  background: #d32f2f;
+  color: #fff;
+}
+
+.status.pending {
+  background: #555;
+  color: #eee;
+}
+
+.action-buttons {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.action-buttons .btn {
+  padding: 0.6rem 1.3rem;
+  border-radius: 8px;
+  margin: 0 0.6rem;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #ffffff 60%, #444 100%);
+  color: #000;
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #ff4e4e 0%, #882222 100%);
+  color: #fff;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #44ff88 0%, #226644 100%);
+  color: #000;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 18px #ffffff88;
+}
+
+@media (max-width: 700px) {
+  .card {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .carousel-btn {
+    margin: 0.5rem 0;
+  }
+
+  .application-detail-section {
+    padding: 1.2rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+  }
+}

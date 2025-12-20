@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body, html {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at top left, #0c0d12, #050509 70%, #000);
+  color: #f0f0f0;
+  min-height: 100vh;
+}
+
+/* SECTION CONTAINER */
+.job-detail-section {
+  max-width: 1000px;
+  margin: 5rem auto 3rem auto;
+  padding: 2rem;
+  border-radius: 16px;
+  background: rgba(20, 20, 28, 0.85);
+  box-shadow: 0 12px 48px #000a, 0 0 0 1.5px #ffffff22 inset;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1.5px solid #2c2c3a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.job-detail-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 2px 12px #000c;
+}
+
+/* CARD WRAPPER */
+.card {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  max-width: 960px;
+  gap: 1.2rem;
+  position: relative;
+}
+
+/* SLIDES CONTAINER */
+.job-detail-carousel {
+  flex: 1;
+  max-width: 650px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* INDIVIDUAL SLIDES */
+.job-detail-slide {
+  display: none;
+  opacity: 0;
+  transform: translateX(50px);
+  transition: all 0.4s ease;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.job-detail-slide.active {
+  display: flex;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* TRANSITIONS */
+.slide-in-left {
+  animation: slideLeft 0.4s ease forwards;
+}
+
+.slide-in-right {
+  animation: slideRight 0.4s ease forwards;
+}
+
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* TEXT STYLES */
+.job-detail-section p {
+  margin: 0.4rem 0;
+  font-size: 1rem;
+  border-left: 3px solid #ffffff22;
+  padding-left: 1rem;
+  color: #ddd;
+}
+
+.job-detail-section strong {
+  color: #fff;
+}
+
+/* NAV BUTTONS */
+.carousel-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid #444;
+  border-radius: 50%;
+  padding: 0.4rem;
+  height: 42px;
+  width: 42px;
+  cursor: pointer;
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.carousel-btn img {
+  width: 20px;
+  height: 20px;
+  filter: invert(1);
+}
+
+.carousel-btn:hover {
+  background: #fff;
+  box-shadow: 0 0 12px #fff8;
+  transform: scale(1.05);
+}
+
+.slide-indicator {
+  margin-top: 1.2rem;
+  font-size: 0.95rem;
+  text-align: center;
+  color: #aaa;
+}
+
+/* ACTION BUTTONS */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 1rem;
+  margin-top: 2rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #ffffff 60%, #444 100%);
+  color: #000;
+  box-shadow: 0 2px 12px #ffffff33;
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #ff4e4e 0%, #882222 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #ff4e4e66;
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #ffffff 0%, #888 100%);
+  color: #000;
+  box-shadow: 0 2px 12px #ffffff33;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 18px #ffffff88;
+}
+
+/* MEDIA QUERIES */
+@media (max-width: 992px) {
+  .card {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .carousel-btn.prev {
+    left: -15px;
+  }
+
+  .carousel-btn.next {
+    right: -15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .job-detail-section {
+    padding: 1.2rem;
+    margin: 1rem;
+  }
+
+  .job-detail-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .carousel-btn {
+    height: 38px;
+    width: 38px;
+    padding: 0.3rem;
+  }
+
+  .carousel-btn img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .job-detail-section p {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .slide-indicator {
+    font-size: 0.85rem;
+  }
+}

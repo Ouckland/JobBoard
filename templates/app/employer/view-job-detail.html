@@ -1,0 +1,102 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/view-job-detail.css' %}">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<section class="job-detail-section">
+    <h2>Job Details</h2>
+
+    <div class="card">
+
+        <!-- Previous Button -->
+        <button class="carousel-btn prev">
+            <img src="{% static 'images/arrow-back.png' %}" alt="Previous">
+        </button>
+
+        <!-- Carousel Container -->
+        <div class="job-detail-carousel">
+            <div class="job-detail-slide active">
+                <p><strong>Title:</strong> {{ job.title }}</p>
+                <p><strong>Employer:</strong> {{ job.employer }}</p>
+                <p><strong>Job Type:</strong> {{ job.get_job_type_display }}</p>
+                <p><strong>Location:</strong> {{ job.location }}</p>
+                <p><strong>Salary (₦):</strong> {{ job.salary }}</p>
+                <p><strong>Experience Required:</strong> {{ job.experience_required }}</p>
+            </div>
+
+            <div class="job-detail-slide">
+                <p><strong>Qualifications:</strong> {{ job.qualifications }}</p>
+                <p><strong>Posted Date:</strong> {{ job.posted_date|date:"F j, Y" }}</p>
+                <p><strong>Deadline:</strong> {{ job.deadline|date:"F j, Y" }}</p>
+                <p><strong>Category:</strong> {{ job.job_category }}</p>
+                <p><strong>Status:</strong> {{ job.job_status }}</p>
+                <p><strong>Skills Required:</strong> {{ job.skills_required }}</p>
+            </div>
+        </div>
+
+        <!-- Next Button -->
+        <button class="carousel-btn next">
+            <img src="{% static 'images/arrow-forward.png' %}" alt="Next">
+        </button>
+    </div>
+
+    <!-- Slide Indicator -->
+    <div class="slide-indicator">
+        <span id="slide-indicator-text">1 / 2</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-4">
+        {% if request.user.employerprofile %}
+            <a href="{% url 'jobs:update_job_details' job.id %}" class="btn btn-primary">Update Job</a>
+            <a href="{% url 'jobs:delete_job' job.id %}" class="btn btn-danger">Delete Job</a>
+        {% else %}
+            <a href="{% url 'jobs:apply_for_job' job.id %}" class="btn btn-success">Apply for Job</a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Carousel Script -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const slides = document.querySelectorAll(".job-detail-slide");
+    const prevBtn = document.querySelector(".carousel-btn.prev");
+    const nextBtn = document.querySelector(".carousel-btn.next");
+    const indicator = document.getElementById("slide-indicator-text");
+
+    let currentSlide = 0;
+
+    function updateSlides(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove("active", "slide-in-left", "slide-in-right");
+            if (i === index) {
+                const direction = index > currentSlide ? "slide-in-right" : "slide-in-left";
+                slide.classList.add("active", direction);
+            }
+        });
+
+        indicator.textContent = `${index + 1} / ${slides.length}`;
+        currentSlide = index;
+    }
+
+    if (prevBtn && nextBtn && slides.length > 0) {
+        updateSlides(currentSlide);
+
+        prevBtn.addEventListener("click", () => {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            updateSlides(currentSlide);
+        });
+
+        nextBtn.addEventListener("click", () => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            updateSlides(currentSlide);
+        });
+    }
+});
+</script>
+{% endblock content %}

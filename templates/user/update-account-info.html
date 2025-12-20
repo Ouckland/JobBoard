@@ -1,0 +1,108 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block title %}
+    <title>jobsphere/account-info/</title>
+{% endblock title %}
+{% block head %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <link rel="stylesheet" href="{% static 'css/account-info.css' %}">
+{% endblock head %}
+{% block content %}
+<div class="account-info-container">
+    <h2>
+        {% if account_type == 'employer' %}
+            Employer Account Information
+        {% else %}
+            Job Seeker Account Information
+        {% endif %}
+    </h2>
+
+    <form method="POST" action="{% url 'users:update_account_info' %}" enctype="multipart/form-data" class="account-info-form" autocomplete="off">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+            {% if field.name == "skills" %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+                    <input id="id_skills" name="skills" value="{{ field.value|default_if_none:'' }}" class="form-control">
+                    {% if field.help_text %}
+                        <small class="form-help">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="form-error">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            {% elif field.name in "resume profile_picture company_logo registration_document" %}
+                <div class="form-group file-upload-group">
+                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-help">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="form-error">{{ field.errors.0 }}</div>
+                    {% endif %}
+                    <div class="file-preview" id="preview_{{ field.name }}"></div>
+                </div>
+            {% else %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-help">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="form-error">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <button type="submit" class="submit-btn">Complete Profile</button>
+    </form>
+</div>
+<script>
+  // Tagify for skills - Modified to save as comma-separated string
+var input = document.querySelector('#id_skills');
+if(input){
+    // Initialize Tagify with custom settings
+    var tagify = new Tagify(input, {
+        whitelist: [],
+        dropdown: { enabled: 0 },
+        // Add these configurations:
+        originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
+        enforceWhitelist: false,
+        keepInvalidTags: false,
+        backspace: "edit",
+        editTags: 1
+    });
+    
+    // Convert existing value from JSON to comma-separated if needed
+    if(input.value && input.value.startsWith('[')) {
+        try {
+            const tags = JSON.parse(input.value);
+            const tagValues = tags.map(tag => tag.value);
+            tagify.addTags(tagValues.join(','));
+        } catch(e) {
+            console.error("Error parsing tags:", e);
+        }
+    }
+}
+  // Preview for image fields
+  function previewImage(input, previewId) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(previewId).innerHTML = '<img src="' + e.target.result + '" style="max-width:120px;max-height:120px;border-radius:10px;margin-top:8px;">';
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+  document.querySelectorAll('.file-input').forEach(function(input){
+    if(input.accept && input.accept.includes('image')){
+      input.addEventListener('change', function(){
+        previewImage(this, 'preview_' + this.name);
+      });
+    }
+  });
+</script>
+{% endblock content %}

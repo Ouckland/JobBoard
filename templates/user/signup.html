@@ -1,0 +1,60 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block title %}
+  <title>Jobsphere | Sign Up</title>
+{% endblock title %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock head %}
+
+{% block content %}
+  <div class="container">
+    <h2>Sign Up</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <div class="form-error">{{ form.email.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <div class="form-group password-group">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        <button type="button" id="togglePassword" tabindex="-1" aria-label="Show password">
+          <img src="{% static 'images/eye-off.png' %}" alt="Toggle password visibility" id="togglePasswordIcon">
+        </button>
+        {% if form.password.errors %}
+          <div class="form-error">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <button type="submit">Send OTP</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'users:login' %}">Log in</a></p>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('togglePassword');
+    const pwdInput = document.getElementById("id_password");
+    const icon = document.getElementById("togglePasswordIcon");
+    // Set your two icon paths
+    const eyeOpen = "{% static 'images/eye.png' %}";
+    const eyeClosed = "{% static 'images/eye-off.png' %}";
+    if (toggleBtn && pwdInput && icon) {
+      toggleBtn.addEventListener('click', function() {
+        if (pwdInput.type === "password") {
+          pwdInput.type = "text";
+          icon.src = eyeClosed;
+        } else {
+          pwdInput.type = "password";
+          icon.src = eyeOpen;
+        }
+      });
+    }
+  });
+</script>
+{% endblock content %}

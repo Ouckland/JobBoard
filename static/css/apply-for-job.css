@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+:root {
+  --bg: #0b0d14;
+  --card-bg: #161923;
+  --text-main: #f0f0f0;
+  --text-muted: #b0b0b0;
+  --border: #2e2e3f;
+  --highlight: #ffffff;
+  --input-bg: #1f1f2f;
+  --input-border: #444;
+  --hover-bg: rgba(255, 255, 255, 0.05);
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+}
+
+.apply-job-section {
+  max-width: 720px;
+  margin: 6rem auto 3rem;
+  padding: 2rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0008;
+}
+
+.job-header h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.highlight {
+  color: var(--highlight);
+}
+
+.job-header p {
+  margin: 0.3rem 0;
+  color: var(--text-muted);
+}
+
+.application-form {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.form-group input,
+.form-group textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  transition: border 0.2s, background 0.2s;
+}
+
+.form-group input:hover,
+.form-group textarea:hover {
+  border-color: white;
+  background: #2a2a3a;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--highlight);
+  background: #2f2f42;
+}
+.form-group a{
+    text-decoration: none;
+color: #b0b0b0;}
+
+.submit-btn {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+}
+
+.submit-btn:hover {
+  background: white;
+  color: #0b0d14;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.back-link {
+  margin-top: 1.5rem;
+}
+
+.back-link a {
+  color: var(--highlight);
+  text-decoration: none;
+  font-size: 0.95rem;
+  border-bottom: 1px dashed white;
+  transition: opacity 0.2s ease;
+}
+
+.back-link a:hover {
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .apply-job-section {
+    padding: 1.5rem;
+    margin: 5rem 1rem 2rem;
+  }
+
+  .job-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .apply-job-section {
+    padding: 1rem;
+  }
+
+  .job-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 0.95rem;
+    padding: 0.7rem 0.9rem;
+  }
+}

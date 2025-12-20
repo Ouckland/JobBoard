@@ -1,0 +1,147 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}
+<title>jobsphere/basic-info/</title>
+{% endblock title %}
+{% block head %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/basic-info.css' %}">
+{% endblock head %}
+
+{% block content %}
+  <div class="basic-info-container">
+    {% if account_type == 'employer' %}
+      <h2>Employer Basic Information</h2>
+      <p>Tell us about your company to get started.</p>
+    {% elif account_type == 'seeker' %}
+      <h2>Job Seeker Basic Information</h2>
+      <p>Provide your personal details to build your profile.</p>
+    {% else %}
+      <h2>Basic Information</h2>
+    {% endif %}
+
+    <form method="POST" action="{% url 'users:update_basic_info' %}" enctype="multipart/form-data" class="basic-info-form" autocomplete="off">
+      {% csrf_token %}
+
+      {% for field in form.visible_fields %}
+        {% if field.name == "country" %}
+          <div class="form-group">
+            <label for="id_country"><strong>Country</strong></label>
+            <select id="id_country" name="country" class="form-control">
+              <option value="">Select Country</option>
+              {% for country in countries %}
+                <option value="{{ country.id }}" data-phone-code="{{ country.phone_code }}" {% if field.value|stringformat:"s" == country.id|stringformat:"s" %}selected{% endif %}>
+                  {{ country.name }}
+                </option>
+              {% endfor %}
+            </select>
+            {% if field.errors %}
+              <div class="form-error">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+        {% elif field.name == "state" %}
+          <div class="form-group">
+            <label for="id_state"><strong>State</strong></label>
+            <select id="id_state" name="state" class="form-control">
+              <option value="">Select State</option>
+              {% for state in states %}
+                <option value="{{ state.id }}" {% if field.value|stringformat:"s" == state.id|stringformat:"s" %}selected{% endif %}>{{ state.name }}</option>
+              {% endfor %}
+            </select>
+            {% if field.errors %}
+              <div class="form-error">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+        {% elif field.name == "phone_number" or field.name == "contact_number" %}
+          <div class="form-group">
+            <label for="id_{{ field.name }}"><strong>
+              {% if field.name == "phone_number" %}Phone Number{% else %}Contact Number{% endif %}
+            </strong></label>
+            <div class="phone-number-group">
+              <select id="id_{{ field.name }}_code" name="{{ field.name }}_code" class="form-control phone-code-select">
+                <option value="">Code</option>
+                {% for country in countries %}
+                  {% if country.phone_code %}
+                    <option value="{{ country.phone_code }}"
+                      {% if country.phone_code == selected_phone_code %}selected{% endif %}>
+                      {{ country.phone_code }} ({{ country.name }})
+                    </option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <input type="text" id="id_{{ field.name }}" name="{{ field.name }}" class="form-control phone-number-input"
+                     placeholder="Enter number" value="{{ field.value|default_if_none:'' }}">
+            </div>
+            {% if field.errors %}
+              <div class="form-error">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+            {{ field }}
+            {% if field.help_text %}
+              <small class="form-help">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+              <div class="form-error">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit" class="submit-btn">Continue</button>
+    </form>
+  </div>
+  <script>
+    $(document).ready(function() {
+      $('#id_country').select2({
+        placeholder: "Select or type a country",
+        allowClear: true,
+        width: '100%'
+      });
+      $('#id_state').select2({
+        placeholder: "Select or type a state",
+        allowClear: true,
+        width: '100%'
+      });
+      $('#id_phone_code').select2({
+        placeholder: "Code",
+        allowClear: true,
+        width: '120px',
+        dropdownAutoWidth: true
+      });
+      $('#id_contact_number_code').select2({
+        placeholder: "Code",
+        allowClear: true,
+        width: '120px',
+        dropdownAutoWidth: true
+      });
+
+      // AJAX for dependent state dropdown
+      $('#id_country').on('change', function() {
+        var countryId = $(this).val();
+        var $stateSelect = $('#id_state');
+        $stateSelect.html('<option value="">Loading...</option>');
+        fetch("{% url 'users:ajax_load_states' %}?country=" + countryId)
+          .then(response => response.json())
+          .then(data => {
+            $stateSelect.html('<option value="">Select State</option>');
+            data.forEach(function(state) {
+              $stateSelect.append(`<option value="${state.id}">${state.name}</option>`);
+            });
+            $stateSelect.val(null).trigger('change');
+          });
+
+        // Auto-select phone code for both phone_number and contact_number
+        var phoneCode = $(this).find('option:selected').data('phone-code');
+        if (phoneCode) {
+          $('#id_phone_code').val(phoneCode).trigger('change');
+          $('#id_contact_number_code').val(phoneCode).trigger('change');
+        }
+      });
+    });
+  </script>
+{% endblock content %}

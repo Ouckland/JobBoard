@@ -1,0 +1,231 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3><i class="dashboard-icon"></i> Dashboard</h3>
+    {% if user.employerprofile %}
+      <a href="{% url 'jobs:add_job' %}"><i></i> Add Job</a>
+      <a href="{% url 'jobs:all_jobs' %}"><i></i> All Jobs</a>
+      <a href="{% url 'jobs:all_applications' %}"><i></i> All Applications</a>
+    {% elif user.seekerprofile %}
+      <a href="{% url 'jobs:all_jobs' %}"><i></i> Find Jobs</a>
+      <a href="#"><i></i> My Applications</a>
+      <a href="{% url 'jobs:saved_jobs' %}"><i></i> Saved Jobs</a>
+    {% endif %}
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <!-- Header Stats -->
+    <header class="dashboard-header">
+      <h2>Welcome back, <span class="username">{{ request.user.get_full_name|default:request.user.username }}</span></h2>
+      <div class="dashboard-stats">
+        {% if user.employerprofile %}
+          <span class="stat-bubble">{{ active_jobs.count }} Active Jobs</span>
+          <span class="stat-bubble">{{ total_applications }} Applications</span>
+        {% elif user.seekerprofile %}
+          <span class="stat-bubble">{{ job_applications.count }} Applications</span>
+          <span class="stat-bubble">{{ recommended_jobs.count }} Recommendations</span>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Search Bar for Seekers -->
+    {% if user.seekerprofile %}
+    <div class="search-container">
+      <form method="get" class="search-form">
+        <div class="search-group">
+          <input type="text" name="q" placeholder="Search jobs..." value="{{ request.GET.q }}">
+        </div>
+        
+          <select name="job_type">
+            <option value="">All Types</option>
+            {% for value, label in job_types %}
+              <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        
+        <input type="text" name="location" placeholder="📍 Location" value="{{ request.GET.location }}">
+        <select name="sort">
+          <option value="">Sort By</option>
+          <option value="recent" {% if request.GET.sort == 'recent' %}selected{% endif %}>Newest</option>
+          <option value="deadline" {% if request.GET.sort == 'deadline' %}selected{% endif %}>Deadline</option>
+        </select>
+        <button type="submit" class="search-btn">Search</button>
+      </form>
+    </div>
+    {% endif %}
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      {% if user.employerprofile %}
+      <section class="dashboard-card card-glow">
+        <div class="card-header">
+          <h3><i>💼</i>Your Posted Jobs</h3>
+          <a href="{% url 'jobs:add_job' %}" class="dashboard-btn pulse">Post New Job</a>
+        </div>
+        <ul class="dashboard-list">
+          {% for job in active_jobs %}
+          <li class="job-item">
+              
+            <div><span class="job-title">{{ job.title }}</span></div>
+            <div class="job-meta">{{ job.applications.count }} application{{ job.applications.count|pluralize }}</div>
+            <div class="job-actions">
+              <a href="{% url 'jobs:view_job_detail' job.id %}" class="action-btn">View</a>
+              <a href="{% url 'jobs:view_applications' job.id %}" class="action-btn">Track</a>
+            </div>
+          </li>
+          {% empty %}
+          <li class="empty-state">
+            <img src="{% static 'images/empty-jobs.svg' %}" class="empty-img" alt="No jobs">
+            <p>No active jobs found</p>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% elif user.seekerprofile %}
+        <!-- Search Results -->
+        {% if request.GET.q or request.GET.job_type or request.GET.location or request.GET.sort %}
+        <section class="dashboard-card card-glow search-results">
+          <div class="card-header">
+            <h3><i>🔍</i>Search Results</h3>
+            <span class="badge">{{ latest_jobs.paginator.count }} Found</span>
+          </div>
+          <ul class="dashboard-list">
+            {% for job in latest_jobs %}
+            <li class="job-item">
+              {% if job.employer.company_logo %}
+                <a href="{% url 'users:public_profile' job.employer.user.username %}" class="job-employer-image"><img src="{{ job.employer.company_logo.url }}" alt="Employer Image">
+                </a>
+              {% else %}
+              
+              <a href='{% url "users:public_profile" job.employer.user.username %}'  class='job-employer-image'><img src="{% static 'images/default-profile.png' %}" alt="No image found" height="50" style='border-radius: 50px%;'></a>
+              {% endif %}
+              <span class="job-title">{{ job.title }}</span>
+              <span class="company">{{ job.employer.company_name }}</span>
+              <div class="job-actions">
+                <a href="{% url 'jobs:view_job_detail' job.id %}" class="action-btn">View</a>
+                <a href="{% url 'jobs:apply_for_job' job.id %}" class="action-btn">Apply</a>
+              </div>
+            </li>
+            {% empty %}
+            <li class="empty-state">
+              <img src="{% static 'images/empty-search.svg' %}" class="empty-img" alt="No results">
+              <p>No jobs match your search.</p>
+            </li>
+            {% endfor %}
+          </ul>
+
+                <!-- Pagination -->
+        <div class="pagination">
+          {% if latest_jobs.has_previous %}
+            <a href="?{% if request.GET.q %}q={{request.GET.q}}&{% endif %}page={{ latest_jobs.previous_page_number }}" class="page-btn">← Prev</a>
+          {% endif %}
+          <span>{{ latest_jobs.number }} of {{ latest_jobs.paginator.num_pages }}</span>
+          {% if latest_jobs.has_next %}
+            <a href="?{% if request.GET.q %}q={{request.GET.q}}&{% endif %}page={{ latest_jobs.next_page_number }}" class="page-btn">Next →</a>
+          {% endif %}
+        </div>
+      </section>
+      {% endif %}
+
+
+      <!-- Recommendations -->
+      <section class="dashboard-card card-glow">
+        <div class="card-header">
+          <h3><i>⭐</i>Recommended for You</h3>
+          <span class="badge">{{ recommended_jobs.count }} Matches</span>
+        </div>
+        
+        <ul class="dashboard-list">
+          {% for job in recommended_jobs %}
+          <li class="job-item">
+            {% if job.employer.company_logo %}
+              <a href="{% url 'users:public_profile' job.employer.user.username %}" class="job-employer-image">
+                <img src="{{ job.employer.company_logo.url }}" alt="Employer Image">
+              </a>
+            {% else %}
+              <a href='{% url "users:public_profile" job.employer.user.username %}' class='job-employer-image'>
+                <img src="{% static 'images/default-profile.png' %}" alt="No logo">
+              </a>
+            {% endif %}
+            
+            <div class="job-details">
+              <span class="job-title">{{ job.title }}</span>
+              <span class="company">{{ job.employer.company_name }}</span>
+              
+              {% if job.match_score %}
+              <div class="match-score">
+                <div class="score-bar" style="width: {{ job.match_score }}%"></div>
+                <span>{{ job.match_score }}% Match</span>
+              </div>
+              {% endif %}
+            </div>
+            
+            <div class="job-actions">
+              <a href="{% url 'jobs:view_job_detail' job.id %}" class="action-btn">View</a>
+              {% if job.id in saved_job_ids %}
+              {% include "partials/unsave-job.html" %}
+              {% else %}
+              {% include "partials/save-job.html" %}
+              {% endif %}
+            </div>
+
+          </li>
+          
+          {% empty %}
+          <li class="empty-state">
+            <img src="{% static 'images/empty-recommendations.svg' %}" class="empty-img" alt="No matches">
+            {% if not profile.skills %}
+              <p>Add skills to your profile for recommendations</p>
+              <a href="{% url 'users:view_profile' %}" class="dashboard-btn">Update Profile</a>
+            {% else %}
+              <p>No matches found. Try broadening your search.</p>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      
+
+      <!-- Applications History -->
+      <section class="dashboard-card card-glow">
+        <div class="card-header">
+          <h3><i>📨</i>Your Applications</h3>
+          <span class="badge">{{ job_applications.count }} Total</span>
+        </div>
+        <ul class="dashboard-list">
+          {% for app in job_applications %}
+          <li class="application-item status-{{ app.status|lower }}">
+            <div><strong>{{ app.job.title }}</strong> – <span class="application-status">{{ app.get_status_display }}</span></div>
+            <div class="application-meta">
+              <span class="application-date">Applied on {{ app.application_date|date:"M j, Y" }}</span>
+              <a href="{% url 'jobs:view_application_detail' app.id %}" class="action-btn">View →</a>
+            </div>
+          </li>
+          {% empty %}
+          <li class="empty-state">
+            <img src="{% static 'images/empty-applications.svg' %}" class="empty-img" alt="No applications">
+            <p>You haven't applied for any jobs yet</p>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock content %}
+
+

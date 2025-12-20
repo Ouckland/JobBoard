@@ -1,0 +1,57 @@
+{% extends "partials/base.html" %}
+{% block content %}
+    {% include "partials/header.html" %}
+
+    <section style="max-width: 700px; margin: 2rem auto; padding: 1.5rem; border: 1px solid #ddd; border-radius: 10px;">
+        <h2 style="margin-bottom: 1rem;">Review Application for: <span style="color: #333;">{{ application.job.title }}</span></h2>
+
+        <div style="margin-bottom: 1rem;">
+            <h3>Applicant Info</h3>
+            <p><strong>Name:</strong> {{ application.applicant.full_name }}</p>
+            <p><strong>Email:</strong> {{ application.applicant.user.email }}</p>
+            <p><strong>Bio:</strong> {{ application.applicant.bio }}</p>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+            <h3>Cover Letter</h3>
+            <p style="white-space: pre-line;">{{ application.cover_letter }}</p>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+            <h3>Resume</h3>
+            <a href="{{ application.resume.url }}" download style="color: #007bff;">Download Resume</a>
+        </div>
+
+        {% if application.attachments %}
+            <div style="margin-bottom: 1rem;">
+                <h3>Attachment</h3>
+                <a href="{{ application.attachments.url }}" download style="color: #007bff;">Download Attachment</a>
+            </div>
+        {% endif %}
+
+        <p><strong>Applied on:</strong> {{ application.application_date|date:"F j, Y" }}</p>
+        <p><strong>Current Status:</strong> 
+            {% if application.status == 'accepted' %}
+                <span style="color: green;">Accepted</span>
+            {% elif application.status == 'rejected' %}
+                <span style="color: red;">Rejected</span>
+            {% else %}
+                <span style="color: orange;">Pending</span>
+            {% endif %}
+        </p>
+
+        {% if application.status == 'pending' %}
+            <form action="{% url 'jobs:review_application' application.id %}" method="POST" style="margin-top: 2rem;">
+                {% csrf_token %}
+                <button type="submit" name="action" value="accept" style="padding: 0.5rem 1rem; background-color: #4CAF50; color: white; border: none; border-radius: 5px; margin-right: 1rem;">
+                    Accept
+                </button>
+                <button type="submit" name="action" value="reject" style="padding: 0.5rem 1rem; background-color: #d32f2f; color: white; border: none; border-radius: 5px;">
+                    Reject
+                </button>
+            </form>
+        {% else %}
+            <p style="margin-top: 1rem; font-style: italic; color: #555;">This application has already been {{ application.status }}.</p>
+        {% endif %}
+    </section>
+{% endblock content %}

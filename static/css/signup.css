@@ -1,0 +1,224 @@
+/* Import a modern font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  /* Red-inclined deep space gradient */
+  background: radial-gradient(ellipse at 50% 30%, #3a2324 0%, #0a0a0a 80%, #2a0a0a 100%);
+  color: #fff;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Hide unused elements */
+.signup-bg, .overlay {
+  display: none !important;
+}
+
+/* Glassmorphism container */
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 400px;
+  margin: 10vh auto 0 auto;
+  background: rgba(30, 22, 24, 0.80); /* subtle red tint */
+  border-radius: 20px;
+  /* Changed box-shadow to dark blue by default */
+  box-shadow: 0 8px 40px 0 #16243a, 0 0 0 1.5px rgba(255,255,255,0.07) inset;
+  padding: 2.5rem 2rem 2rem 2rem;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.13);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow 0.3s;
+}
+
+.container:hover,
+.container:focus-within {
+  /* On hover or focus, use the red tint for box-shadow */
+  box-shadow: 0 12px 60px 0 #3a2324, 0 0 0 2px #fff2 inset;
+}
+
+.container h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  letter-spacing: 1px;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  font-weight: 600;
+  text-shadow: 0 2px 12px #0008;
+}
+
+/* Form fields */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.form-group,
+.password-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.form-group label,
+.password-group label {
+  margin-bottom: 0.3rem;
+  align-self: flex-start;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.password-group input[type="password"],
+.password-group input[type="text"] {
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid #3a2324;
+  background: rgba(40, 22, 24, 0.85); /* subtle red tint */
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 8px #2a0a0a inset;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+}
+
+/* ...existing code above... */
+
+.password-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Make sure this is NOT center */
+}
+
+.password-group label {
+  margin-bottom: 0.3rem;
+  align-self: flex-start;
+}
+
+.password-group input[type="password"],
+.password-group input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 2.5rem;
+  margin-bottom: 0;
+  /* Ensure line-height and height are set for vertical centering */
+  line-height: 1.5;
+  height: 2.7rem;
+  display: block;
+}
+
+#togglePassword {
+  position: absolute;
+  top: 50%;
+  right: 0.8rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  width: 2rem;
+  padding: 0;
+  z-index: 2;
+}
+
+#togglePasswordIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  filter: brightness(1.5) drop-shadow(0 0 2px #fff);
+  transition: filter 0.2s, opacity 0.2s;
+  opacity: 0.85;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+
+#togglePassword:focus #togglePasswordIcon,
+#togglePassword:hover #togglePasswordIcon {
+  filter: brightness(2) drop-shadow(0 0 6px #fff);
+  opacity: 1;
+}
+
+/* Error message styling */
+.form-error {
+  color: #ff6b6b;
+  font-size: 0.95em;
+  margin-top: 0.3em;
+  margin-bottom: 0.2em;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+/* Submit button */
+button[type="submit"] {
+  margin-top: 0.5rem;
+  padding: 0.8rem 0;
+  background: linear-gradient(90deg, #fff 60%, #e0e0e0 100%);
+  color: #181818;
+  font-weight: bold;
+  border-radius: 12px;
+  border: none;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  box-shadow: 0 0 18px #fff2, 0 0 32px #fff1;
+  cursor: pointer;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+button[type="submit"]:hover {
+  background: linear-gradient(90deg, #3a2324 0%, #fff 100%);
+  color: #fff;
+  box-shadow: 0 0 40px #fff, 0 0 80px #fff;
+  border: 1.5px solid #fff;
+}
+
+/* Login link */
+.container p {
+  text-align: center;
+  margin-top: 1.3rem;
+  color: #eee;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+.container a {
+  color: #fff;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.container a:hover {
+  color: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+  }
+  .container h2 {
+    font-size: 1.3rem;
+  }
+  button[type="submit"] {
+    font-size: 1rem;
+  }
+}

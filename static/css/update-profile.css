@@ -1,0 +1,108 @@
+/* Base Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at 60% 20%, #111216 0%, #050509 60%, #000);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.main-content {
+    padding-top: 100px; /* Matches header height */
+    min-height: calc(100vh - 100px);
+    display: flex;
+    align-items: center;
+}
+
+.update-profile-container {
+    width: 100%;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.update-links-grid {
+    display: flex;
+    gap: 2rem;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.update-link-card {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 2.5rem;
+    border-radius: 16px;
+    background: rgba(30, 30, 40, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.update-link-card:hover {
+    background: rgba(40, 40, 50, 0.7);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(0, 191, 255, 0.3);
+}
+
+.link-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.update-link-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.update-link-card p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.update-link-card:hover .link-icon {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 80px;
+        min-height: calc(100vh - 80px);
+    }
+    
+    .update-links-grid {
+        flex-direction: column;
+    }
+    
+    .update-link-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 2rem;
+    }
+    
+    .link-icon {
+        font-size: 2rem;
+    }
+    
+    .update-link-card h3 {
+        font-size: 1.3rem;
+    }
+}

@@ -1,0 +1,52 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/add-job.css' %}">
+{% endblock head %}
+
+{% block content %}
+
+<section class="account-info-container">
+    <div class="form-box">
+        <h2 class="form-heading">Update Job Details</h2>
+        {% comment %} <form action="{% url 'jobs:update_job_details' job.id %}" method="POST" enctype="multipart/form-data"> {% endcomment %}
+            {% comment %} {% csrf_token %} {% endcomment %}
+            {% if job_form.errors %}
+        <div class="form-error">
+            <ul>
+                {% for field in job_form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in job_form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form class="account-info-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% for field in job_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <div class="form-help">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                    <div class="form-error">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="submit-btn">Submit Job</button>
+        <div class="back-link">
+      <a href="{% url 'jobs:view_job_detail' job.id %}">← Back to Job Details</a>
+    </div>
+    </form>
+    </div>
+</section>
+{% endblock content %}

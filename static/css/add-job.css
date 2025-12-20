@@ -1,0 +1,233 @@
+/* ===== Base Styles ===== */
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(ellipse at 50% 30%, #181a1f 0%, #0a0a0a 80%, #000 100%);
+  color: #fff;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+/* ===== Job Posting Container ===== */
+.account-info-container {
+  background: rgba(10, 10, 10, 0.96);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px 0 #000, 0 0 0 1.5px #fff1 inset;
+  padding: 2.5rem 2rem;
+  color: #fff;
+  border: 1.5px solid #222;
+  max-width: 540px;
+  width: 100%;
+  margin: 5vh auto;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ===== Typography ===== */
+h2 {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px #000a;
+  text-align: center;
+}
+
+/* ===== Form Structure ===== */
+.account-info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.form-group label {
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* ===== Form Inputs ===== */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="number"],
+.form-group input[type="url"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid #222;
+  background: rgba(20, 20, 20, 0.85);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 8px #000a inset;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border: 1.5px solid #fff;
+  background: #181a1f;
+  box-shadow: 0 0 8px #fff8;
+}
+
+/* ===== Form Helpers ===== */
+.form-help {
+  color: #aaa;
+  font-size: 0.95em;
+  margin-top: 0.2em;
+}
+
+.form-error {
+  color: #ff6b6b;
+  background: rgba(30, 0, 0, 0.15);
+  border-left: 3px solid #ff6b6b;
+  padding: 0.4em 0.8em;
+  margin: 0.7em 0 0.3em 0;
+  font-size: 0.97em;
+  font-weight: 500;
+  border-radius: 6px;
+  letter-spacing: 0.2px;
+  text-align: left;
+  box-shadow: 0 2px 8px #0002;
+  width: 100%;
+}
+
+.form-error ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+/* ===== Submit Button ===== */
+.submit-btn {
+  margin-top: 1rem;
+  padding: 0.8rem 0;
+  width: 100%;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  border-radius: 12px;
+  border: none;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  box-shadow: 0 0 18px #fff2, 0 0 32px #fff1;
+  cursor: pointer;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.submit-btn:hover {
+  background: #181a1f;
+  color: #fff;
+  box-shadow: 0 0 40px #fff, 0 0 80px #fff;
+  border: 1.5px solid #fff;
+}
+
+
+.back-link {
+  margin-top: 1.5rem;
+}
+
+.back-link a {
+  color: var(--highlight);
+  text-decoration: none;
+  font-size: 0.95rem;
+  border-bottom: 1px dashed white;
+  transition: opacity 0.2s ease;
+}
+
+.back-link a:hover {
+  opacity: 0.7;
+}
+
+
+/* ===== Tagify Custom Styles ===== */
+.tagify {
+  --tags-border-color: #222;
+  --tags-hover-border-color: #333;
+  --tags-focus-border-color: #fff;
+  --tag-bg: #4dabff;
+  --tag-hover: #3a8fd9;
+  --tag-text-color: #fff;
+  --tag-text-color--edit: #fff;
+  --tag-remove-btn-color: #fff;
+  --tag-remove-btn-bg: rgba(0,0,0,0.2);
+  --tag-invalid-color: #ff6b6b;
+  --tag-invalid-bg: rgba(255, 107, 107, 0.1);
+  --input-color: #fff;
+  --placeholder-color: #aaa;
+  --placeholder-color-focus: #ccc;
+  --dropdown-bg: #181a1f;
+  --dropdown-item--bg: #181a1f;
+  --dropdown-item--bg-hover: #222;
+  --dropdown-item--text-color: #fff;
+  --dropdown-border-color: #222;
+}
+
+.tagify__tag > div {
+  border-radius: 6px !important;
+}
+
+.tagify__input {
+  padding: 0.5rem 0.7rem !important;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 600px) {
+  .account-info-container {
+    max-width: 95vw;
+    padding: 1.5rem 1rem;
+    margin: 2vh auto;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .submit-btn {
+    font-size: 1rem;
+    padding: 0.7rem 0;
+  }
+  
+  .account-info-form {
+    gap: 1rem;
+  }
+}
+/* Add these to your existing CSS */
+.tagify {
+    --tags-border-color: #222;
+    --tags-hover-border-color: #333;
+    --tags-focus-border-color: #fff;
+    --tag-bg: #4dabff;
+    --tag-text-color: #fff;
+    --tag-remove-btn-color: #fff;
+    background: rgba(20, 20, 20, 0.85);
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+}
+
+.tagify__tag > div {
+    border-radius: 6px !important;
+    padding: 0.3em 0.5em !important;
+}
+
+.tagify__input {
+    color: #fff !important;
+    padding: 0 !important;
+}
+
+.tagify__input::placeholder {
+    color: #aaa !important;
+}

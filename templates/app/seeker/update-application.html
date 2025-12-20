@@ -1,0 +1,44 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/apply-for-job.css' %}">
+{% endblock head %}
+
+{% block content %}
+  {% include "partials/header.html" %}
+
+  <section class="apply-job-section">
+    <div class="job-header">
+      <h2>Update Application for <span class="highlight">{{ application.job.title }}</span></h2>
+      <p><strong>Employer:</strong> {{ application.job.employer.company_name }}</p>
+      <p><strong>Location:</strong> {{ application.job.location }}</p>
+      <p><strong>Deadline:</strong> {{ application.job.deadline }}</p>
+    </div>
+
+    <form action="{% url 'jobs:update_application' application.id %}" method="POST" enctype="multipart/form-data" class="application-form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        {{ form.cover_letter.label_tag }}
+        {{ form.cover_letter }}
+      </div>
+
+      <div class="form-group">
+        {{ form.resume.label_tag }}
+        {{ form.resume }}
+      </div>
+
+      <div class="form-group">
+        {{ form.attachments.label_tag }}
+        {{ form.attachments }}
+      </div>
+
+      <button type="submit" class="submit-btn">✅ Submit Application</button>
+    </form>
+
+    <div class="back-link">
+      <a href="{% url 'jobs:view_application_detail' application.id %}">← Back to Job Details</a>
+    </div>
+  </section>
+{% endblock content %}

@@ -1,0 +1,226 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/all-chats.css' %}">
+<div class="chat-layout">
+    <!-- Sidebar -->
+    <div class="chat-list-container">
+        <div class="chat-list-title">
+            Your Chats
+            <button class="dark-toggle-btn" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+        </div>
+        <ul class="chat-list">
+            {% for partner, info in chat_partners.items %}
+                {% with profile=info.profile message=info.latest_message unread=info.unread_count %}
+                <li class="chat-list-item" data-username="{{ partner.username }}">
+                    {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="Avatar" class="chat-avatar">
+                    {% elif profile.company_logo %}
+                    <img src="{{ profile.company_logo.url }}" alt="Avatar" class="chat-avatar">
+                    {% else %}
+                    <img src="{% static 'images/default-profile.png' %}" class="chat-avatar" alt="Avatar">
+                    {% endif %}
+                    <div class="chat-info">
+                        <span class="chat-partner-link">{{ partner.get_full_name|default:partner.username }}</span>
+                        {% if unread > 0 %}
+                            <span class="unread-badge">{{ unread }}</span>
+                        {% endif %}
+                        <span class="chat-last-message">
+                            {{ message.body|truncatewords:12 }}
+                            <span class="chat-timestamp">({{ message.timestamp|date:"M d, H:i" }})</span>
+                        </span>
+                    </div>
+                </li>
+                {% endwith %}
+            {% empty %}
+                <li>No chats yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- Chat area -->
+    <div class="chat-main" id="chat-main">
+        <div class="chat-placeholder">Select a chat to start messaging</div>
+        <div id="chat-header"></div>
+        <div id="message-box" style="border: 1px solid #ccc; padding: 1rem; height: 400px; overflow-y: auto; margin-bottom: 1rem;"></div>
+        <form id="message-form" style="display:none;">
+            <textarea name="body" id="message-body" rows="2" style="width: 100%;"></textarea>
+            <button type="submit" style="margin-top: 0.5rem;">Send</button>
+        </form>
+        <div id="typing-indicator" style="margin: 1rem 0 0 0; color: #2563eb; font-style: italic; display: none;"></div>
+    </div>
+</div>
+<script>
+let activeChatUsername = null;
+let chatRefreshInterval = null;
+let typingStatusInterval = null;
+let currentReceiverName = null;
+
+// Render only the messages in the message box
+function renderMessages(messages, currentUser) {
+    let html = '';
+    messages.forEach(msg => {
+        html += `<div style="display: flex; justify-content: ${msg.sender === currentUser ? 'flex-end' : 'flex-start'}; margin-bottom: 0.5rem;">`;
+        if (msg.sender !== currentUser) {
+            html += `<img src="${msg.profile_pic || '{% static 'images/default-profile.png' %}'}" width="35" height="35" style="border-radius: 50%; margin-right: 0.5rem;">`;
+        }
+        html += `<div class="chat-bubble ${msg.sender === currentUser ? 'sent' : 'received'}">${msg.body}`;
+        if (msg.sender === currentUser) {
+            html += `<div style="font-size: 0.75rem; color: gray; text-align: right;">${msg.is_read ? '✓✓ Seen' : '✓ Sent'}</div>`;
+        }
+        html += `</div></div>`;
+    });
+    return html;
+}
+
+// Load chat (header, messages, form) when switching chats
+function loadChat(username, sidebarItem) {
+    fetch(`/messaging/chat/${username}/?ajax=1`)
+        .then(response => response.json())
+        .then(data => {
+            activeChatUsername = username;
+            currentReceiverName = data.receiver_name;
+
+            // Set chat header
+            document.getElementById('chat-header').innerHTML = `<h2>Chat with ${data.receiver_name}</h2>`;
+
+            // Render messages
+            document.getElementById('message-box').innerHTML = renderMessages(data.messages, data.current_user);
+
+            // Show form
+            document.getElementById('message-form').style.display = '';
+
+            // Remove unread badge for this chat
+            if (sidebarItem) {
+                sidebarItem.querySelector('.unread-badge')?.remove();
+            }
+
+            // Scroll to bottom
+            const messageBox = document.getElementById('message-box');
+            if (messageBox) messageBox.scrollTop = messageBox.scrollHeight;
+
+            // Typing indicator logic
+            const typingIndicator = document.getElementById('typing-indicator');
+            typingIndicator.style.display = 'none';
+
+            // Typing event
+            const messageBody = document.getElementById('message-body');
+            let typingTimeout = null;
+            messageBody.value = '';
+            messageBody.oninput = function() {
+                if (typingTimeout) clearTimeout(typingTimeout);
+                fetch(`/messaging/typing/${username}/`, {
+                    method: 'POST',
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'}
+                });
+                typingTimeout = setTimeout(() => {}, 2000);
+            };
+
+            // Clear previous typing status interval
+            if (typingStatusInterval) clearInterval(typingStatusInterval);
+
+            // Poll for typing status
+            typingStatusInterval = setInterval(() => {
+                fetch(`/messaging/typing/${data.current_user}/`)
+                    .then(response => response.json())
+                    .then(status => {
+                        if (status.typing) {
+                            typingIndicator.style.display = '';
+                            typingIndicator.textContent = `${data.receiver_name} is typing...`;
+                        } else {
+                            typingIndicator.style.display = 'none';
+                        }
+                    });
+            }, 1500);
+        });
+}
+
+// Only refresh the message list (not the input/form/header)
+function refreshMessages(username) {
+    fetch(`/messaging/chat/${username}/?ajax=1`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('message-box').innerHTML = renderMessages(data.messages, data.current_user);
+            // Scroll to bottom
+            const messageBox = document.getElementById('message-box');
+            if (messageBox) messageBox.scrollTop = messageBox.scrollHeight;
+        });
+}
+
+// Sidebar click handler
+document.querySelectorAll('.chat-list-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const username = this.getAttribute('data-username');
+        activeChatUsername = username;
+
+        // Remove previous intervals if any
+        if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+        if (typingStatusInterval) clearInterval(typingStatusInterval);
+
+        document.querySelectorAll('.chat-list-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        // Initial load
+        loadChat(username, this);
+
+        // Set interval for auto-refresh (every 5 seconds)
+        chatRefreshInterval = setInterval(() => {
+            if (activeChatUsername === username) {
+                // Only refresh messages, not the whole chat area
+                const messageBody = document.getElementById('message-body');
+                if (messageBody && (document.activeElement === messageBody || messageBody.value.length > 0)) {
+                    // Don't reload if user is typing
+                    return;
+                }
+                refreshMessages(username);
+            }
+        }, 5000);
+    });
+});
+
+// Attach the submit event handler globally (will always work)
+document.getElementById('message-form').onsubmit = function(e) {
+    e.preventDefault();
+    if (!activeChatUsername) return;
+    const body = document.getElementById('message-body').value;
+    fetch(`/messaging/chat/${activeChatUsername}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: new URLSearchParams({body: body})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'sent') {
+            document.getElementById('message-body').value = '';
+            refreshMessages(activeChatUsername);
+        }
+    });
+};
+
+// --- DARK MODE PERSISTENCE ---
+const darkModeToggle = document.getElementById('darkModeToggle');
+function setDarkMode(state) {
+    if (state) {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.textContent = '☀️';
+        localStorage.setItem('darkMode', '1');
+    } else {
+        document.body.classList.remove('dark-mode');
+        darkModeToggle.textContent = '🌙';
+        localStorage.setItem('darkMode', '0');
+    }
+}
+darkModeToggle.onclick = function() {
+    setDarkMode(!document.body.classList.contains('dark-mode'));
+};
+// On page load, restore dark mode state
+if (localStorage.getItem('darkMode') === '1') {
+    setDarkMode(true);
+} else {
+    setDarkMode(false);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock head %}
+
+{% block content %}
+  {% include "partials/header.html" %}
+
+  <section class="notifications-container">
+    <h2>Your Notifications</h2>
+
+    <!-- CSRF Token for AJAX -->
+    <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+
+    <button id="mark-all-read" class="mark-all-btn">Mark All as Read</button>
+
+    {% if notifications %}
+      {% for notification in notifications %}
+        <div class="notification-card {% if not notification.is_read %}unread{% endif %}" data-id="{{ notification.id }}">
+          {% if notification.url %}
+            <a href="{{ notification.url }}" class="notification-link">
+              <p class="notification-message">{{ notification.message }}</p>
+            </a>
+          {% else %}
+            <p class="notification-message">{{ notification.message }}</p>
+          {% endif %}
+
+          <div class="notification-meta">
+            <small>{{ notification.created_at|timesince }} ago</small>
+            {% if not notification.is_read %}
+              <button class="mark-read-btn" data-id="{{ notification.id }}">Mark as Read</button>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="no-notifs">You have no notifications.</p>
+    {% endif %}
+  </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const csrfToken = document.getElementById("csrf-token").value;
+
+      function updateUnreadCount(newCount) {
+        const countSpan = document.getElementById('unread-count');
+        if (countSpan) {
+          if (newCount > 0) {
+            countSpan.textContent = newCount;
+          } else {
+            countSpan.remove();
+          }
+        }
+      }
+
+      function postData(url, callback) {
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            callback(data.unread_count);
+          } else {
+            alert('Failed to update.');
+          }
+        })
+        .catch(err => {
+          alert('Request failed');
+          console.error(err);
+        });
+      }
+
+      // Mark individual notification as read
+      document.querySelectorAll(".mark-read-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+          const notificationId = this.dataset.id;
+          const card = document.querySelector(`.notification-card[data-id="${notificationId}"]`);
+          const btnRef = this;
+
+          postData(`/jobs/notifications/read/${notificationId}/`, (unreadCount) => {
+            card.classList.remove("unread");
+            btnRef.remove();
+            updateUnreadCount(unreadCount);
+          });
+        });
+      });
+
+      // Mark all as read
+      const markAllLink = document.getElementById("mark-all-read");
+      if (markAllLink) {
+        markAllLink.addEventListener("click", function (e) {
+          e.preventDefault();
+          postData('/jobs/notifications/mark-all-as-read/', (unreadCount) => {
+            document.querySelectorAll('.notification-card.unread').forEach(card => {
+              card.classList.remove("unread");
+              const btn = card.querySelector(".mark-read-btn");
+              if (btn) btn.remove();
+            });
+            updateUnreadCount(unreadCount);
+          });
+        });
+      }
+    });
+  </script>
+{% endblock content %}

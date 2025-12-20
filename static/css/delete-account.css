@@ -1,0 +1,204 @@
+/* Base Styles */
+:root {
+  --bg-primary: radial-gradient(ellipse at 50% 30%, #181a1f 0%, #0a0a0a 80%, #000 100%);
+  --surface-1: rgba(10, 10, 10, 0.96);
+  --text-primary: #fff;
+  --text-secondary: #aaa;
+  --error-color: #ff4a4a;
+  --error-bg: rgba(255, 74, 74, 0.1);
+  --border-color: #222;
+  --highlight-color: #fff;
+  --header-height: 60px;
+}
+
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+}
+
+/* Container Styles */
+.delete-account-container {
+  background: var(--surface-1);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px 0 #000, 
+              0 0 0 1.5px var(--error-color) inset;
+  padding: 2.5rem 2rem;
+  border: 1.5px solid var(--error-color);
+  max-width: 500px;
+  width: 100%;
+  margin: calc(var(--header-height) + 5vh) auto 5vh;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: pulseWarning 3s infinite;
+}
+
+@keyframes pulseWarning {
+  0% { box-shadow: 0 0 0 0 rgba(255, 74, 74, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(255, 74, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 74, 74, 0); }
+}
+
+/* Warning Header */
+.warning-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.warning-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+
+.delete-account-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: var(--error-color);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.warning-text {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+/* Form Elements */
+.delete-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.form-group input {
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--error-color);
+  background: rgba(30, 0, 0, 0.2);
+  color: var(--text-primary);
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--highlight-color);
+  box-shadow: 0 0 0 3px rgba(255, 74, 74, 0.3);
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.delete-btn {
+  padding: 1rem;
+  background: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #ff2e2e;
+  box-shadow: 0 0 15px rgba(255, 74, 74, 0.5);
+  transform: translateY(-2px);
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+}
+
+.cancel-btn {
+  padding: 0.8rem;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  border-color: var(--highlight-color);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Icons */
+.trash-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.arrow-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .delete-account-container {
+    max-width: 95vw;
+    padding: 1.5rem 1rem;
+    margin: calc(var(--header-height) + 2vh) auto 2vh;
+  }
+  
+  .delete-account-container h2 {
+    font-size: 1.5rem;
+  }
+  
+  .warning-text {
+    font-size: 0.95rem;
+  }
+  
+  .delete-btn, .cancel-btn {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+}
