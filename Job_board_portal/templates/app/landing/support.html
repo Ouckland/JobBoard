@@ -1,0 +1,228 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/landing-pages.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<section class="landing-section">
+    <div class="landing-container">
+        <!-- Header -->
+        <div class="landing-header">
+            <h1 class="landing-title">Help & Support</h1>
+            <p class="landing-subtitle">Find answers and get help</p>
+        </div>
+
+        <!-- Help Categories -->
+        <div class="categories-section">
+            <h2 class="section-title">Browse by Category</h2>
+            <div class="categories-grid">
+                <a href="#getting-started" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <h3>Getting Started</h3>
+                    <p>Learn the basics of using JobBoard</p>
+                </a>
+                
+                <a href="#job-seekers" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3>For Job Seekers</h3>
+                    <p>Applying, profiles, and job search tips</p>
+                </a>
+                
+                <a href="#employers" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>For Employers</h3>
+                    <p>Posting jobs and managing applications</p>
+                </a>
+                
+                <a href="#account" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h3>Account & Settings</h3>
+                    <p>Manage your profile and preferences</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-accordion">
+                <!-- For Job Seekers -->
+                <div class="faq-category" id="job-seekers">
+                    <h3 class="faq-category-title">For Job Seekers</h3>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I apply for a job?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To apply for a job:</p>
+                            <ol>
+                                <li>Browse jobs from the dashboard or search page</li>
+                                <li>Click on a job that interests you</li>
+                                <li>Click the "Apply Now" button</li>
+                                <li>Fill in your cover letter and upload your resume</li>
+                                <li>Submit your application</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I track my applications?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>You can track all your applications from your dashboard. Go to "My Applications" to see the status of each application (Pending, Accepted, Rejected).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- For Employers -->
+                <div class="faq-category" id="employers">
+                    <h3 class="faq-category-title">For Employers</h3>
+                    
+                    <div class="faq-item" id="posting-jobs">
+                        <button class="faq-question">
+                            <span>How do I post a job?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To post a job:</p>
+                            <ol>
+                                <li>Go to your employer dashboard</li>
+                                <li>Click "Post New Job"</li>
+                                <li>Fill in all required job details</li>
+                                <li>Set application deadline</li>
+                                <li>Publish the job</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item" id="applications">
+                        <button class="faq-question">
+                            <span>How do I review applications?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To review applications:</p>
+                            <ol>
+                                <li>Go to your dashboard and click on "My Jobs"</li>
+                                <li>Click "View Applications" on any job</li>
+                                <li>Click "Review" on any application to see details</li>
+                                <li>You can accept, reject, or contact applicants</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account -->
+                <div class="faq-category" id="account">
+                    <h3 class="faq-category-title">Account & Settings</h3>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I update my profile?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Go to your dashboard and click "Edit Profile" or go to your profile page and click the edit button. You can update your information, bio, profile picture, and other details.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I reset my password?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Click "Forgot Password" on the login page. Enter your email address and you'll receive instructions to reset your password.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Support CTA -->
+        <div class="support-cta">
+            <div class="cta-content">
+                <h2>Still need help?</h2>
+                <p>Can't find what you're looking for? Our support team is ready to assist you.</p>
+                <a href="{% url 'jobs:contact_us' %}" class="cta-btn primary">
+                    <i class="fas fa-envelope"></i>
+                    Contact Support
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ Accordion
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', () => {
+            const answer = question.nextElementSibling;
+            const icon = question.querySelector('i');
+            
+            // Toggle current answer
+            answer.classList.toggle('active');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+            
+            // Close other answers
+            faqQuestions.forEach(otherQuestion => {
+                if (otherQuestion !== question) {
+                    const otherAnswer = otherQuestion.nextElementSibling;
+                    const otherIcon = otherQuestion.querySelector('i');
+                    otherAnswer.classList.remove('active');
+                    otherIcon.classList.remove('fa-chevron-up');
+                    otherIcon.classList.add('fa-chevron-down');
+                }
+            });
+        });
+    });
+    
+    // Search functionality
+    const searchInput = document.querySelector('.search-input');
+    const searchBtn = document.querySelector('.search-btn');
+    
+    searchBtn.addEventListener('click', function() {
+        const query = searchInput.value.trim();
+        if (query) {
+            // Scroll to relevant FAQ or show search results
+            const faqItems = document.querySelectorAll('.faq-question span');
+            faqItems.forEach(item => {
+                if (item.textContent.toLowerCase().includes(query.toLowerCase())) {
+                    item.closest('.faq-item').scrollIntoView({ behavior: 'smooth' });
+                    item.closest('.faq-item').querySelector('.faq-question').click();
+                }
+            });
+        }
+    });
+    
+    // Enter key for search
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchBtn.click();
+        }
+    });
+});
+</script>
+
+{% endblock content %}

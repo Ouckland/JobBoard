@@ -1,0 +1,123 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/landing-pages.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<section class="landing-section">
+    <div class="landing-container">
+        <!-- Header -->
+        <div class="landing-header">
+            <h1 class="landing-title">Contact Us</h1>
+            <p class="landing-subtitle">Get in touch with our team</p>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="landing-grid">
+            <!-- Contact Form -->
+            <div class="contact-form-section">
+                <h2 class="section-title">Send us a message</h2>
+                
+                {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                    <div class="message message-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <form method="post" action="{% url 'jobs:contact_us' %}" class="contact-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required 
+                               placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required 
+                               placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" required 
+                               placeholder="What is this regarding?">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="6" required 
+                                  placeholder="Type your message here..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Message
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="contact-info-section">
+                <h2 class="section-title">Other ways to reach us</h2>
+                
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <div class="method-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="method-details">
+                            <h3>Email</h3>
+                            <p>jobboard.mailbox@gmail.com</p>
+                            <p class="method-note">We respond within 24 hours</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <div class="method-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="method-details">
+                            <h3>Live Chat</h3>
+                            <p>Available 9AM-6PM EST</p>
+                            <p class="method-note">Click the chat icon in the bottom left</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <div class="method-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="method-details">
+                            <h3>Help Center</h3>
+                            <p>Browse our documentation</p>
+                            <a href="{% url 'jobs:support' %}" class="method-link">Visit Support Center →</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Preview -->
+                <div class="faq-preview">
+                    <h3>Frequently Asked Questions</h3>
+                    <ul class="faq-list">
+                        <li><a href="{% url 'jobs:support' %}#posting-jobs">How do I post a job?</a></li>
+                        <li><a href="{% url 'jobs:support' %}#applications">How do I review applications?</a></li>
+                        <li><a href="{% url 'jobs:support' %}#account">How do I update my account?</a></li>
+                        <li><a href="{% url 'jobs:support' %}#pricing">Is there a fee to use the platform?</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

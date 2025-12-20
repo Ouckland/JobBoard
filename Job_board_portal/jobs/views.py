@@ -32,6 +32,51 @@ User = get_user_model()
 def home(request):
     return render(request, 'app/home.html')
 
+
+def contact_us(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        # Send email to admin
+        admin_email = getattr(settings, 'EMAIL_HOST_USER', settings.DEFAULT_FROM_EMAIL)
+        full_message = f"""
+        New Contact Form Submission:
+        
+        Name: {name}
+        Email: {email}
+        Subject: {subject}
+        
+        Message:
+        {message}
+        """
+        
+        try:
+            send_mail(
+                subject=f"Contact Form: {subject}",
+                message=full_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[admin_email],
+                fail_silently=False,
+            )
+            messages.success(request, 'Thank you! Your message has been sent.')
+        except Exception as e:
+            messages.error(request, 'Sorry, there was an error sending your message.')
+        
+        return redirect('jobs:contact_us')
+    
+    return render(request, 'app/landing/contact.html')
+
+def about(request):
+    return render(request, 'app/landing/about.html')
+
+def support(request):
+    return render(request, 'app/landing/support.html')
+
+
+
 @login_required
 def dashboard(request):
     user = request.user

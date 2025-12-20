@@ -1,0 +1,288 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/landing-pages.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock head %}
+
+{% block content %}
+{% include "partials/header.html" %}
+
+<section class="landing-section">
+    <div class="landing-container">
+        <!-- Header -->
+        <div class="landing-header">
+            <h1 class="landing-title">About JobBoard</h1>
+            <p class="landing-subtitle">Transforming the future of recruitment, one connection at a time</p>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="about-hero">
+            <div class="hero-content">
+                <h2>Redefining Recruitment</h2>
+                <p>JobBoard is a modern recruitment platform designed to bridge the gap between exceptional talent and forward-thinking companies. We combine cutting-edge technology with human insight to create meaningful employment connections.</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">10,000+</span>
+                        <span class="hero-stat-label">Successful Placements</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">50+</span>
+                        <span class="hero-stat-label">Countries Served</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">99.9%</span>
+                        <span class="hero-stat-label">Uptime Reliability</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <i class="fas fa-network-wired hero-icon"></i>
+            </div>
+        </div>
+
+        <!-- Our Story -->
+        <div class="story-section">
+            <h2 class="section-title">Our Story</h2>
+            <div class="story-content">
+                <p>Founded in 2024, JobBoard emerged from a simple observation: traditional job platforms were becoming increasingly complex, impersonal, and inefficient for both job seekers and employers. We set out to build a solution that prioritizes human connection while leveraging technology to streamline the hiring process.</p>
+                
+                <p>What started as a university project has evolved into a comprehensive recruitment platform trusted by startups, SMEs, and established corporations alike. Our commitment to continuous innovation and user-centric design has driven our growth and shaped our vision for the future of work.</p>
+            </div>
+        </div>
+
+        <!-- Values Section -->
+        <div class="values-section">
+            <h2 class="section-title">Our Core Values</h2>
+            <p class="section-subtitle">These principles guide everything we do</p>
+            
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3>User-Centric Design</h3>
+                    <p>Every feature is built with our users' needs at the forefront. We prioritize intuitive interfaces and seamless experiences for both job seekers and employers.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Data Integrity & Privacy</h3>
+                    <p>We implement enterprise-grade security measures and comply with global data protection regulations to safeguard your information.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Transparency & Trust</h3>
+                    <p>Clear communication, honest pricing, and transparent processes form the foundation of every interaction on our platform.</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Innovation & Agility</h3>
+                    <p>We continuously evolve our platform, embracing new technologies and methodologies to stay ahead in the dynamic recruitment landscape.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="tech-section">
+            <h2 class="section-title">Built on Modern Technology</h2>
+            <p class="section-subtitle">Our platform leverages cutting-edge technologies for optimal performance</p>
+            
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        <i class="fab fa-python"></i>
+                    </div>
+                    <h4>Django Framework</h4>
+                    <p>Robust backend with enterprise-grade security</p>
+                </div>
+                
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        <i class="fab fa-js"></i>
+                    </div>
+                    <h4>JavaScript</h4>
+                    <p>Dynamic frontend with responsive design</p>
+                </div>
+                
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h4>PostgreSQL</h4>
+                    <p>Reliable data storage and management</p>
+                </div>
+                
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h4>Cloud Infrastructure</h4>
+                    <p>Scalable hosting with 99.9% uptime</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Developer Section -->
+        <div class="developer-section">
+            <h2 class="section-title">Meet the Developer</h2>
+            
+            <div class="developer-profile">
+                <div class="developer-image">
+                    <img src="{% static 'images/profile-pic.jpg' %}" class='profile-pic' alt="">
+                    {% comment %} <i class="fas fa-user-tie dev-icon"></i> {% endcomment %}
+                </div>
+                <div class="developer-info">
+                    <h3>ISELE KOREDE MICHAEL</h3>
+                    <p class="developer-title">Full-Stack Developer & Founder</p>
+                    
+                    <div class="developer-bio">
+                        <p>As the sole developer and founder of JobBoard, I bring a unique combination of technical expertise and entrepreneurial vision to the recruitment technology space. With 2+ years of experience in software development and a passion for solving complex problems, I built this platform from the ground up to address real challenges in the job market.</p>
+                        
+                        <p>My commitment extends beyond code - I'm dedicated to creating a platform that genuinely helps people find meaningful work and companies build exceptional teams. Every feature is thoughtfully designed and meticulously implemented to ensure the best possible user experience.</p>
+                    </div>
+                    
+                    <div class="developer-skills">
+                        <h4>Technical Expertise:</h4>
+                        <div class="skills-tags">
+                            <span class="skill-tag">Python/Django</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">PostgreSQL</span>
+                            <span class="skill-tag">REST APIs</span>
+                        </div>
+                    </div>
+                    
+                    <div class="developer-contact">
+                        <a href="https://github.com/Ouckland" target="_blank" class="dev-link">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                        <a href="https://linkedin.com/in/korede-isele-944016297/" target="_blank" class="dev-link">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Features -->
+        <div class="features-section">
+            <h2 class="section-title">Platform Capabilities</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Intelligent Matching</h3>
+                    <p>Advanced algorithms connect qualified candidates with relevant job opportunities based on skills, experience, and preferences.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>Application Management</h3>
+                    <p>Streamlined tools for tracking applications, communicating with candidates, and managing the hiring pipeline.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Real-time Notifications</h3>
+                    <p>Instant updates on application status, new job matches, and important platform announcements.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Comprehensive insights into application performance, candidate engagement, and hiring metrics.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commitment Section -->
+        <div class="commitment-section">
+            <h2 class="section-title">Our Commitment to You</h2>
+            
+            <div class="commitment-content">
+                <div class="commitment-item">
+                    <i class="fas fa-headset commitment-icon"></i>
+                    <div>
+                        <h3>24/7 Customer Support</h3>
+                        <p>Dedicated support team available around the clock to assist with any questions or technical issues.</p>
+                    </div>
+                </div>
+                
+                <div class="commitment-item">
+                    <i class="fas fa-sync-alt commitment-icon"></i>
+                    <div>
+                        <h3>Continuous Improvement</h3>
+                        <p>Regular updates and new features based on user feedback and emerging industry trends.</p>
+                    </div>
+                </div>
+                
+                <div class="commitment-item">
+                    <i class="fas fa-shield-alt commitment-icon"></i>
+                    <div>
+                        <h3>Security First</h3>
+                        <p>Regular security audits, data encryption, and compliance with industry standards.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Join Our Growing Community</h2>
+            <p>Whether you're looking for your next career opportunity or seeking exceptional talent for your organization, JobBoard provides the tools and support you need to succeed.</p>
+            
+            <div class="cta-buttons">
+                {% if user.is_authenticated %}
+                    {% if user.employerprofile %}
+                        <a href="{% url 'jobs:post_job' %}" class="cta-btn primary">
+                            <i class="fas fa-plus"></i>
+                            Post Your First Job
+                        </a>
+                        <a href="{% url 'jobs:job_search' %}" class="cta-btn secondary">
+                            <i class="fas fa-eye"></i>
+                            Browse Talent
+                        </a>
+                    {% else %}
+                        <a href="{% url 'jobs:job_search' %}" class="cta-btn primary">
+                            <i class="fas fa-search"></i>
+                            Explore Opportunities
+                        </a>
+                        <a href="{% url 'users:public_profile' user.username %}" class="cta-btn secondary">
+                            <i class="fas fa-user-edit"></i>
+                            Enhance Your Profile
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'users:email_sign_up' %}" class="cta-btn primary">
+                        <i class="fas fa-user-plus"></i>
+                        Join Free Today
+                    </a>
+                    <a href="{% url 'jobs:contact_us' %}" class="cta-btn secondary">
+                        <i class="fas fa-envelope"></i>
+                        Request Demo
+                    </a>
+                {% endif %}
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

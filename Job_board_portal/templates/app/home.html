@@ -769,21 +769,7 @@
 
 <div class="content-overlay"></div>
 
-<nav class="navbar">
-  <div class="brand">JobSphere</div>
-  <button class="menu-toggle" id="menuToggle">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-  <div class="nav-links" id="navLinks">
-    <a href="#">Home</a>
-    <a href="#">About</a>
-    <a href="#">Jobs</a>
-    <a href="#">Contact</a>
-    <a href="{% url 'users:email_sign_up' %}">Sign Up</a>
-  </div>
-</nav>
+{% include "partials/header.html" %}
 
 <div class="hero" id="hero">
   <div class="hero-content">

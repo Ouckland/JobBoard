@@ -5,6 +5,11 @@ app_name = 'jobs'
 
 urlpatterns = [
     path('', views.home, name='home'),
+
+    path('contact/', views.contact_us, name='contact_us'),
+    path('about/', views.about, name='about'),
+    path('support/', views.support, name='support'),
+
     path('dashboard/', views.dashboard, name='dashboard'),
     path('jobs/all', views.all_jobs, name='all_jobs'),
     path('applications/all/', views.all_applications, name='all_applications'), 
